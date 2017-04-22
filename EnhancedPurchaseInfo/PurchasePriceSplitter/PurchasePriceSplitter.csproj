@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1EB86554-D897-4643-87BD-6A0D17E3FD75}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DoenaSoft.DVDProfiler.EnhancedPurchaseInfo</RootNamespace>
+    <AssemblyName>PurchasePriceSplitter</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\PurchasePriceSplitter\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>DJDSOFT.ICO</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\EnhancedPurchaseInfo\Properties\EnhancedPurchaseInfo.AssemblyInfo.cs">
+      <Link>Properties\EnhancedPurchaseInfo.AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="ItemPriceRow.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ItemPriceRow.Designer.cs">
+      <DependentUpon>ItemPriceRow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ItemPricesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ItemPricesForm.Designer.cs">
+      <DependentUpon>ItemPricesForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Resources\MessageBoxTexts.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MessageBoxTexts.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\Texts.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Texts.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\DefaultValues.cs" />
+    <Compile Include="Settings\Settings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ItemPriceRow.resx">
+      <DependentUpon>ItemPriceRow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ItemPricesForm.resx">
+      <DependentUpon>ItemPricesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\MessageBoxTexts.de.resx">
+      <DependentUpon>MessageBoxTexts.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\MessageBoxTexts.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MessageBoxTexts.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Texts.de.resx">
+      <DependentUpon>Texts.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Texts.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Texts.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DJDSOFT.ICO" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>copy /y PurchasePriceSplitter.* ..\..\..\..\EnhancedPurchaseInfo\bin\x86\EnhancedPurchaseInfo\
+copy /y de\PurchasePriceSplitter.* ..\..\..\..\EnhancedPurchaseInfo\bin\x86\EnhancedPurchaseInfo\de\</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
