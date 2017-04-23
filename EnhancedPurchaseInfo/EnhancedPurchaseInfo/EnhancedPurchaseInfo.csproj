@@ -46,14 +46,6 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Microsoft.WindowsAPICodePack-Core.1.1.0.0\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Microsoft.WindowsAPICodePack-Shell.1.1.0.0\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -116,7 +108,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="EnhancedPurchaseInfo.snk" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\MessageBoxTexts.resx">
@@ -149,6 +140,14 @@
     <ProjectReference Include="..\..\EnhancedPurchaseInfoLibrary\EnhancedPurchaseInfoLibrary\EnhancedPurchaseInfoLibrary.csproj">
       <Project>{9cb8d714-d5d6-440a-aa59-eb0c5d1fed26}</Project>
       <Name>EnhancedPurchaseInfoLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Microsoft.WindowsAPICodePack\Core\Core.csproj">
+      <Project>{2e1fb0df-f9bb-4909-9f32-2d9d022a8e57}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Microsoft.WindowsAPICodePack\Shell\Shell.csproj">
+      <Project>{aa0c00cb-8699-4f37-bfae-40ca87acc06d}</Project>
+      <Name>Shell</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ToolBox\ToolBox\ToolBox.csproj">
       <Project>{4782e10e-b5cc-4c2d-9d7f-d132cb5a50a0}</Project>
