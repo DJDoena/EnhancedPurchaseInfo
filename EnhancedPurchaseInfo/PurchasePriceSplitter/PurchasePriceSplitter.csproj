@@ -84,14 +84,18 @@
   <ItemGroup>
     <Content Include="DJDSOFT.ICO" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="copy.cmd">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy /y PurchasePriceSplitter.* ..\..\..\..\EnhancedPurchaseInfo\bin\x86\EnhancedPurchaseInfo\
-copy /y de\PurchasePriceSplitter.* ..\..\..\..\EnhancedPurchaseInfo\bin\x86\EnhancedPurchaseInfo\de\</PostBuildEvent>
+    <PostBuildEvent>call copy.cmd</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

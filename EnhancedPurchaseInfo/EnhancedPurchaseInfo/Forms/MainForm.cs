@@ -578,7 +578,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
         private void OnCheckForUpdatesToolStripMenuItemClick(Object sender, EventArgs e)
         {
             OnlineAccess.Init("Doena Soft.", "EnhancedPurchaseInfo");
-            OnlineAccess.CheckForNewVersion("http://doena-soft.de/dvdprofiler/3.9.0/versions.xml", this, "EnhancedPurchaseInfo", this.GetType().Assembly);
+            OnlineAccess.CheckForNewVersion("http://doena-soft.de/dvdprofiler/3.9.5/versions.xml", this, "EnhancedPurchaseInfo", this.GetType().Assembly);
         }
 
         private void OnDataChanged(Object sender, EventArgs e)
