@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using DoenaSoft.DVDProfiler.DVDProfilerHelper;
 using DoenaSoft.DVDProfiler.EnhancedPurchaseInfo.Resources;
 using DoenaSoft.ToolBox.Extensions;
+using DoenaSoft.ToolBox.Generics;
 using Invelos.DVDProfilerPlugin;
 
 namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo

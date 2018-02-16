@@ -1,8 +1,8 @@
 [Setup]
 AppName=Enhanced Purchase Info
 AppId=EnhancedPurchaseInfo
-AppVerName=Enhanced Purchase Info 1.1.3.2
-AppCopyright=Copyright © Doena Soft. 2015 - 2017
+AppVerName=Enhanced Purchase Info 1.1.3.3
+AppCopyright=Copyright © Doena Soft. 2015 - 2018
 AppPublisher=Doena Soft.
 AppPublisherURL=http://doena-journal.net/en/dvd-profiler-tools/
 DefaultDirName={pf32}\Doena Soft.\Enhanced Purchase Info
@@ -20,9 +20,9 @@ WizardSmallImageFile=compiler:wizmodernsmallimage-is.bmp
 DisableReadyPage=yes
 ShowLanguageDialog=no
 VersionInfoCompany=Doena Soft.
-VersionInfoCopyright=2015 - 2017
+VersionInfoCopyright=2015 - 2018
 VersionInfoDescription=Enhanced Purchase Info Setup
-VersionInfoVersion=1.1.3.2
+VersionInfoVersion=1.1.3.3
 UninstallDisplayIcon={app}\djdsoft.ico
 
 [Languages]
