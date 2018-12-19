@@ -144,12 +144,6 @@
   <data name="OtherCostsInDomesticCurrency" xml:space="preserve">
     <value>Andere Kosten in heimischer Währung</value>
   </data>
-  <data name="ShippingCostInForeignCurrency" xml:space="preserve">
-    <value>Versandgebühren in Fremdwährung</value>
-  </data>
-  <data name="ShippingCostShareInForeignCurrency" xml:space="preserve">
-    <value>Versandgebührenanteil in Fremdwährung</value>
-  </data>
   <data name="SplitType" xml:space="preserve">
     <value>Aufteilungsart</value>
   </data>
@@ -167,5 +161,8 @@
   </data>
   <data name="Items" xml:space="preserve">
     <value>Items</value>
+  </data>
+  <data name="ShippingCostInForeignCurrency" xml:space="preserve">
+    <value>Versandkosten in Fremdwährung</value>
   </data>
 </root>

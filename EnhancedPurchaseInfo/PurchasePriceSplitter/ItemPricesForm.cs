@@ -1,8 +1,7 @@
-﻿using DoenaSoft.DVDProfiler.EnhancedPurchaseInfo.Resources;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Windows.Forms;
+using DoenaSoft.DVDProfiler.EnhancedPurchaseInfo.Resources;
 
 namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 {
@@ -16,7 +15,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         public ItemPricesForm()
         {
-            InitializeComponent();            
+            InitializeComponent();
             SetComboBox();
             ResetForm();
         }
@@ -25,6 +24,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
         {
             ShippinCostSplitComboBox.Items.Add(Texts.SplitTypeAbsolute);
             ShippinCostSplitComboBox.Items.Add(Texts.SplitTypeRelative);
+
             if (Program.Settings.DefaultValues.ShippingCostSplitAbsolute)
             {
                 ShippinCostSplitComboBox.SelectedIndex = 0;
@@ -63,130 +63,178 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             #region Items
 
             ForeignItemPriceLabel.Text = Texts.ItemPriceInForeignCurrency;
-            ShippingCostShareLabel.Text = Texts.ShippingCostShareInForeignCurrency;
+            ShippingCostShareLabel.Text = Texts.ShippingCostInForeignCurrency;
             DomesticItemPriceLabel.Text = Texts.ItemPriceInDomesticCurrency;
+            CreditCardChargeShareLabel.Text = Texts.CreditCardChargeInDomesticCurrency;
+            CreditCardFeeShareLabel.Text = Texts.CreditCardFeesInDomesticCurrency;
+            CustomsFeeShareLabel.Text = Texts.CustomsFeesInDomesticCurrency;
+            OtherCostShareLabel.Text = Texts.OtherCostsInDomesticCurrency;
 
             #endregion
-
         }
 
-        private void OnCalculateButtonClick(Object sender, EventArgs e)
+        private void OnCalculateButtonClick(object sender, EventArgs e)
         {
-            Decimal itemSum;
-            Decimal endSum;
-            Decimal shippingCost;
-
-            itemSum = 0;
-            for (Int32 i = 0; i < PriceRows.Count; i++)
+            var itemSumForeign = 0m;
+            for (var i = 0; i < PriceRows.Count; i++)
             {
-                itemSum += PriceRows[i].ForeignPriceUpDown.Value;
+                itemSumForeign += PriceRows[i].ForeignPriceUpDown.Value;
             }
 
-            shippingCost = ShippingCostUpDown.Value;
+            var accumulatedItemSum = 0m;
+            var accumulatedShippingCost = 0m;
+            var accumulatedCreditCardCharge = 0m;
+            var accumulatedCreditCardFee = 0m;
+            var accumulatedCustoms = 0m;
+            var accumulatedOtherCost = 0m;
 
-            endSum = CreditCardChargeUpDown.Value + CreditCardFeesUpDown.Value + CustomsFeesUpDown.Value + OtherCostsUpDown.Value;
+            var itemSumDomestic = CreditCardChargeUpDown.Value + CreditCardFeesUpDown.Value + CustomsFeesUpDown.Value + OtherCostsUpDown.Value;
 
-            for (Int32 i = 0; i < PriceRows.Count; i++)
+            for (var i = 0; i < PriceRows.Count; i++)
             {
-                Decimal shippingCostShare;
-                Decimal domesticPriceShare;
-                Decimal domesticPrice;
-                Decimal foreignPrice;
-                Decimal divider;
-
-                foreignPrice = PriceRows[i].ForeignPriceUpDown.Value;
-
-                if (ShippinCostSplitComboBox.SelectedIndex == 0)
-                {
-                    shippingCostShare = shippingCost / PriceRows.Count;
-                }
-                else
-                {
-                    shippingCostShare = (foreignPrice / itemSum) * shippingCost;
-                }
-
-                divider = itemSum + shippingCost;
-
-                if (divider > 0)
-                {
-                    domesticPriceShare = (foreignPrice + shippingCostShare) / divider;
-                }
-                else
-                {
-                    domesticPriceShare = 0;
-                }
-
-                domesticPrice = endSum * domesticPriceShare;
-
-                GetFormattedValue(PriceRows[i].ShippingCostShareTextBox, shippingCostShare);
-                GetFormattedValue(PriceRows[i].DomesticPriceTextBox, domesticPrice);
+                CalculateRow(i, itemSumForeign, itemSumDomestic, ref accumulatedItemSum, ref accumulatedShippingCost, ref accumulatedCreditCardCharge, ref accumulatedCreditCardFee, ref accumulatedCustoms, ref accumulatedOtherCost);
             }
 
-            shippingCost = 0;
-            endSum = 0;
+            FinalPriceRow.ForeignPriceUpDown.Value = itemSumForeign;
 
-            for (Int32 i = 0; i < PriceRows.Count; i++)
-            {
-                shippingCost += (Decimal)(PriceRows[i].ShippingCostShareTextBox.Tag);
-                endSum += (Decimal)(PriceRows[i].DomesticPriceTextBox.Tag);
-            }
-
-            FinalPriceRow.ForeignPriceUpDown.Value = itemSum;
-            GetFormattedValue(FinalPriceRow.ShippingCostShareTextBox, shippingCost);
-            GetFormattedValue(FinalPriceRow.DomesticPriceTextBox, endSum);
+            SetFormattedValues(FinalPriceRow, itemSumDomestic, ShippingCostUpDown.Value, CreditCardChargeUpDown.Value, CreditCardFeesUpDown.Value, CustomsFeesUpDown.Value, OtherCostsUpDown.Value);
         }
 
-        private void GetFormattedValue(TextBox textBox, Decimal value)
+        private void CalculateRow(int rowIndex, decimal itemSumForeign, decimal itemSumDomestic, ref decimal accumulatedItemSum, ref decimal accumulatedShippingCost, ref decimal accumulatedCreditCardCharge, ref decimal accumulatedCreditCardFee, ref decimal accumulatedCustoms, ref decimal accumulatedOtherCost)
         {
-            String formattedValue;
-            CultureInfo ci;
+            var row = PriceRows[rowIndex];
 
-            ci = Application.CurrentCulture;
-            formattedValue = value.ToString("F2", ci);
+            if (rowIndex != PriceRows.Count - 1)
+            {
+                CalulateRow(row, itemSumForeign, ref accumulatedItemSum, ref accumulatedShippingCost, ref accumulatedCreditCardCharge, ref accumulatedCreditCardFee, ref accumulatedCustoms, ref accumulatedOtherCost);
+            }
+            else
+            {
+                CalculateFinalRow(row, itemSumDomestic, accumulatedItemSum, accumulatedShippingCost, accumulatedCreditCardCharge, accumulatedCreditCardFee, accumulatedCustoms, accumulatedOtherCost);
+            }
+        }
+
+        private void CalulateRow(ItemPriceRow row, decimal itemSumForeign, ref decimal accumulatedItemSum, ref decimal accumulatedShippingCost, ref decimal accumulatedCreditCardCharge, ref decimal accumulatedCreditCardFee, ref decimal accumulatedCustoms, ref decimal accumulatedOtherCost)
+        {
+            CalculateShippingCost(itemSumForeign, row, ref accumulatedShippingCost, out var shippingCost);
+
+            var domesticPriceShare = 0m;
+
+            if (itemSumForeign + ShippingCostUpDown.Value > 0)
+            {
+                domesticPriceShare = (row.ForeignPriceUpDown.Value + shippingCost) / (itemSumForeign + ShippingCostUpDown.Value);
+            }
+
+            CalculateDomesticPrice(CreditCardChargeUpDown.Value, domesticPriceShare, ref accumulatedCreditCardCharge, out var creditCardCharge);
+
+            CalculateDomesticPrice(CreditCardFeesUpDown.Value, domesticPriceShare, ref accumulatedCreditCardFee, out var creditCardFee);
+
+            CalculateDomesticPrice(CustomsFeesUpDown.Value, domesticPriceShare, ref accumulatedCustoms, out var customs);
+
+            CalculateDomesticPrice(OtherCostsUpDown.Value, domesticPriceShare, ref accumulatedOtherCost, out var otherCost);
+
+            var domesticPrice = creditCardCharge + creditCardFee + customs + otherCost;
+
+            accumulatedItemSum += domesticPrice;
+
+            SetFormattedValues(row, domesticPrice, shippingCost, creditCardCharge, creditCardFee, customs, otherCost);
+        }
+
+        private void CalculateFinalRow(ItemPriceRow row, decimal itemSumDomestic, decimal accumulatedItemSum, decimal accumulatedShippingCost, decimal accumulatedCreditCardCharge, decimal accumulatedCreditCardFee, decimal accumulatedCustoms, decimal accumulatedOtherCost)
+        {
+            var domesticPrice = itemSumDomestic - accumulatedItemSum;
+            var shippingCost = ShippingCostUpDown.Value - accumulatedShippingCost;
+            var creditCardCharge = CreditCardChargeUpDown.Value - accumulatedCreditCardCharge;
+            var creditCardFee = CreditCardFeesUpDown.Value - accumulatedCreditCardFee;
+            var customs = CustomsFeesUpDown.Value - accumulatedCustoms;
+            var otherCost = OtherCostsUpDown.Value - accumulatedOtherCost;
+
+            SetFormattedValues(row, domesticPrice, shippingCost, creditCardCharge, creditCardFee, customs, otherCost);
+        }
+
+        private static void CalculateDomesticPrice(decimal itemSumDomestic, decimal domesticPriceShare, ref decimal accumulatedItemSum, out decimal domesticPrice)
+        {
+            domesticPrice = itemSumDomestic * domesticPriceShare;
+
+            domesticPrice = Math.Round(domesticPrice, 2, MidpointRounding.AwayFromZero);
+
+            accumulatedItemSum += domesticPrice;
+        }
+
+        private void CalculateShippingCost(decimal itemSumForeign, ItemPriceRow row, ref decimal accumulatedShippingCost, out decimal shippingCost)
+        {
+            shippingCost = ShippinCostSplitComboBox.SelectedIndex == 0
+                ? ShippingCostUpDown.Value / PriceRows.Count
+                : (row.ForeignPriceUpDown.Value / itemSumForeign) * ShippingCostUpDown.Value;
+
+            shippingCost = Math.Round(shippingCost, 2, MidpointRounding.AwayFromZero);
+
+            accumulatedShippingCost += shippingCost;
+        }
+
+        private void SetFormattedValues(ItemPriceRow row, decimal domesticPrice, decimal shippingCost, decimal creditCardCharge, decimal creditCardFee, decimal customs, decimal otherCost)
+        {
+            SetFormattedValue(row.DomesticPriceTextBox, domesticPrice);
+            SetFormattedValue(row.ShippingCostShareTextBox, shippingCost);
+            SetFormattedValue(row.CreditCardChargeShareTextBox, creditCardCharge);
+            SetFormattedValue(row.CreditCardFeeShareTextBox, creditCardFee);
+            SetFormattedValue(row.CustomsFeeShareTextBox, customs);
+            SetFormattedValue(row.OtherCostShareTextBox, otherCost);
+        }
+
+        private void SetFormattedValue(TextBox textBox, decimal value)
+        {
+            var ci = Application.CurrentCulture;
+
+            var formattedValue = value.ToString("F2", ci);
+
             textBox.Text = formattedValue;
+
             textBox.Tag = value;
         }
 
         private void AddRows()
         {
-            Int32 itemCount;
-            Int32 top;
-
-            itemCount = (Int32)(NumberOfItemsUpDown.Value);
+            var itemCount = (int)(NumberOfItemsUpDown.Value);
 
             ResetRows(itemCount);
 
+            int top;
             if ((PriceRows == null) || (PriceRows.Count == 0))
             {
                 PriceRows = new List<ItemPriceRow>();
+
                 top = 5;
             }
             else
             {
                 top = PriceRows[PriceRows.Count - 1].Top + 30;
             }
-            for (Int32 i = PriceRows.Count; i < itemCount; i++)
-            {
-                ItemPriceRow row;
 
-                row = AddRow(top, i);
+            for (var i = PriceRows.Count; i < itemCount; i++)
+            {
+                var row = AddRow(top, i);
+
                 PriceRows.Add(row);
+
                 top += 30;
             }
         }
 
-        private void ResetRows(Int32 itemCount)
+        private void ResetRows(int itemCount)
         {
             if ((PriceRows != null) && (PriceRows.Count > 0))
             {
-                for (Int32 i = PriceRows.Count - 1; i >= itemCount; i--)
+                for (var i = PriceRows.Count - 1; i >= itemCount; i--)
                 {
-                    ItemPriceRow row;
+                    var row = PriceRows[i];
 
-                    row = PriceRows[i];
                     ItemPanel.Controls.Remove(row);
+
                     UnregisterRowEvents(row);
+
                     row.Dispose();
+
                     PriceRows.RemoveAt(i);
                 }
             }
@@ -195,24 +243,27 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
         private void UnregisterRowEvents(ItemPriceRow row)
         {
             row.ForeignPriceUpDown.Enter -= OnUpDownEnter;
+
             row.ShippingCostShareTextBox.Enter -= OnUpDownEnter;
+
             row.DomesticPriceTextBox.Enter -= OnUpDownEnter;
         }
 
-        private ItemPriceRow AddRow(Int32 top
-            , Int32 index)
+        private ItemPriceRow AddRow(int top, int index)
         {
-            ItemPriceRow row;
+            var row = new ItemPriceRow()
+            {
+                Top = top,
+                Left = 6,
+                Name = "ItemPriceRow" + index.ToString(),
+                TabIndex = index,
+            };
 
-            row = new ItemPriceRow();
-            row.Top = top;
-            row.Left = 6;
-            row.Name = "ItemPriceRow" + index.ToString();
-            row.TabIndex = index;
             RegisterRowEvents(row);
+
             ItemPanel.Controls.Add(row);
 
-            return (row);
+            return row;
         }
 
         private void RegisterRowEvents(ItemPriceRow row)
@@ -222,28 +273,19 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             row.DomesticPriceTextBox.Enter += OnUpDownEnter;
         }
 
-        private void OnUpDownEnter(Object sender, EventArgs e)
+        private void OnUpDownEnter(object sender, EventArgs e)
         {
-            NumericUpDown upDown;
-
-            upDown = sender as NumericUpDown;
-            if (upDown != null)
+            if (sender is NumericUpDown upDown)
             {
                 upDown.Select(0, upDown.Text.Length);
             }
-            else
+            else if (sender is TextBox textBox)
             {
-                TextBox textBox;
-
-                textBox = sender as TextBox;
-                if(textBox  != null)
-                {
-                    textBox.Select(0, textBox.Text.Length);
-                }
+                textBox.Select(0, textBox.Text.Length);
             }
         }
 
-        private void OnResetButtonClick(Object sender, EventArgs e)
+        private void OnResetButtonClick(object sender, EventArgs e)
         {
             ResetForm();
         }
@@ -265,8 +307,8 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             {
                 FinalPriceRow.ForeignPriceUpDown.Value = 0;
 
-                GetFormattedValue(FinalPriceRow.ShippingCostShareTextBox, 0);
-                GetFormattedValue(FinalPriceRow.DomesticPriceTextBox, 0);
+                SetFormattedValue(FinalPriceRow.ShippingCostShareTextBox, 0);
+                SetFormattedValue(FinalPriceRow.DomesticPriceTextBox, 0);
             }
 
             ResumeLayout(true);
@@ -274,10 +316,8 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             OnNumberOfItemsUpDownValueChanged(this, EventArgs.Empty);
         }
 
-        private void OnNumberOfItemsUpDownValueChanged(Object sender, EventArgs e)
+        private void OnNumberOfItemsUpDownValueChanged(object sender, EventArgs e)
         {
-            Int32 top;
-
             SuspendLayout();
 
             AddRows();
@@ -291,10 +331,12 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                 CalculateButton.Left = 7;
                 CalculateButton.Size = new System.Drawing.Size(150, 23);
                 CalculateButton.Click += OnCalculateButtonClick;
+
                 ItemPanel.Controls.Add(CalculateButton);
             }
 
-            top = PriceRows[PriceRows.Count - 1].Top + 35;
+            var top = PriceRows[PriceRows.Count - 1].Top + 35;
+
             CalculateButton.Top = top;
             CalculateButton.TabIndex = PriceRows.Count;
 
@@ -315,23 +357,22 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             ResumeLayout(true);
         }
 
-        private void OnFormClosing(Object sender, FormClosingEventArgs e)
+        private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
             Program.Settings.DefaultValues.ShippingCostSplitAbsolute = (ShippinCostSplitComboBox.SelectedIndex == 0);
         }
 
-        private void OnFormShown(Object sender, EventArgs e)
+        private void OnFormShown(object sender, EventArgs e)
         {
             SetLabels();
         }
 
-        private void OnUpDownLeave(Object sender, EventArgs e)
+        private void OnUpDownLeave(object sender, EventArgs e)
         {
-            NumericUpDown upDown;
+            var upDown = (NumericUpDown)sender;
 
-            upDown = (NumericUpDown)sender;
-            if (String.IsNullOrEmpty(upDown.Text))
-            {                
+            if (string.IsNullOrEmpty(upDown.Text))
+            {
                 upDown.Value = upDown.Minimum;
                 upDown.Text = upDown.Value.ToString();
             }

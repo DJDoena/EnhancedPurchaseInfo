@@ -47,10 +47,14 @@
             this.ShippinCostSplitComboBox = new System.Windows.Forms.ComboBox();
             this.NumberOfItemsUpDown = new System.Windows.Forms.NumericUpDown();
             this.ItemsTabPage = new System.Windows.Forms.TabPage();
+            this.CreditCardFeeShareLabel = new System.Windows.Forms.Label();
+            this.CreditCardChargeShareLabel = new System.Windows.Forms.Label();
             this.DomesticItemPriceLabel = new System.Windows.Forms.Label();
             this.ShippingCostShareLabel = new System.Windows.Forms.Label();
             this.ForeignItemPriceLabel = new System.Windows.Forms.Label();
             this.ItemPanel = new System.Windows.Forms.Panel();
+            this.CustomsFeeShareLabel = new System.Windows.Forms.Label();
+            this.OtherCostShareLabel = new System.Windows.Forms.Label();
             this.MainTabControl.SuspendLayout();
             this.BasicsTabPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.OtherCostsUpDown)).BeginInit();
@@ -72,7 +76,7 @@
             this.MainTabControl.Location = new System.Drawing.Point(12, 12);
             this.MainTabControl.Name = "MainTabControl";
             this.MainTabControl.SelectedIndex = 0;
-            this.MainTabControl.Size = new System.Drawing.Size(610, 288);
+            this.MainTabControl.Size = new System.Drawing.Size(1540, 288);
             this.MainTabControl.TabIndex = 0;
             // 
             // BasicsTabPage
@@ -95,7 +99,7 @@
             this.BasicsTabPage.Location = new System.Drawing.Point(4, 22);
             this.BasicsTabPage.Name = "BasicsTabPage";
             this.BasicsTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.BasicsTabPage.Size = new System.Drawing.Size(602, 262);
+            this.BasicsTabPage.Size = new System.Drawing.Size(1152, 262);
             this.BasicsTabPage.TabIndex = 0;
             this.BasicsTabPage.Text = "Basics";
             this.BasicsTabPage.UseVisualStyleBackColor = true;
@@ -279,6 +283,10 @@
             // 
             // ItemsTabPage
             // 
+            this.ItemsTabPage.Controls.Add(this.OtherCostShareLabel);
+            this.ItemsTabPage.Controls.Add(this.CustomsFeeShareLabel);
+            this.ItemsTabPage.Controls.Add(this.CreditCardFeeShareLabel);
+            this.ItemsTabPage.Controls.Add(this.CreditCardChargeShareLabel);
             this.ItemsTabPage.Controls.Add(this.DomesticItemPriceLabel);
             this.ItemsTabPage.Controls.Add(this.ShippingCostShareLabel);
             this.ItemsTabPage.Controls.Add(this.ForeignItemPriceLabel);
@@ -286,15 +294,33 @@
             this.ItemsTabPage.Location = new System.Drawing.Point(4, 22);
             this.ItemsTabPage.Name = "ItemsTabPage";
             this.ItemsTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.ItemsTabPage.Size = new System.Drawing.Size(602, 262);
+            this.ItemsTabPage.Size = new System.Drawing.Size(1532, 262);
             this.ItemsTabPage.TabIndex = 1;
             this.ItemsTabPage.Text = "Items";
             this.ItemsTabPage.UseVisualStyleBackColor = true;
             // 
+            // CreditCardFeeShareLabel
+            // 
+            this.CreditCardFeeShareLabel.AutoSize = true;
+            this.CreditCardFeeShareLabel.Location = new System.Drawing.Point(780, 6);
+            this.CreditCardFeeShareLabel.Name = "CreditCardFeeShareLabel";
+            this.CreditCardFeeShareLabel.Size = new System.Drawing.Size(186, 13);
+            this.CreditCardFeeShareLabel.TabIndex = 8;
+            this.CreditCardFeeShareLabel.Text = "Credit Card Fee in Domestic Currency:";
+            // 
+            // CreditCardChargeShareLabel
+            // 
+            this.CreditCardChargeShareLabel.AutoSize = true;
+            this.CreditCardChargeShareLabel.Location = new System.Drawing.Point(540, 6);
+            this.CreditCardChargeShareLabel.Name = "CreditCardChargeShareLabel";
+            this.CreditCardChargeShareLabel.Size = new System.Drawing.Size(202, 13);
+            this.CreditCardChargeShareLabel.TabIndex = 7;
+            this.CreditCardChargeShareLabel.Text = "Credit Card Charge in Domestic Currency:";
+            // 
             // DomesticItemPriceLabel
             // 
             this.DomesticItemPriceLabel.AutoSize = true;
-            this.DomesticItemPriceLabel.Location = new System.Drawing.Point(405, 6);
+            this.DomesticItemPriceLabel.Location = new System.Drawing.Point(180, 6);
             this.DomesticItemPriceLabel.Name = "DomesticItemPriceLabel";
             this.DomesticItemPriceLabel.Size = new System.Drawing.Size(160, 13);
             this.DomesticItemPriceLabel.TabIndex = 6;
@@ -303,11 +329,11 @@
             // ShippingCostShareLabel
             // 
             this.ShippingCostShareLabel.AutoSize = true;
-            this.ShippingCostShareLabel.Location = new System.Drawing.Point(180, 6);
+            this.ShippingCostShareLabel.Location = new System.Drawing.Point(360, 6);
             this.ShippingCostShareLabel.Name = "ShippingCostShareLabel";
-            this.ShippingCostShareLabel.Size = new System.Drawing.Size(200, 13);
+            this.ShippingCostShareLabel.Size = new System.Drawing.Size(169, 13);
             this.ShippingCostShareLabel.TabIndex = 5;
-            this.ShippingCostShareLabel.Text = "Shipping Cost Share in Foreign Currency:";
+            this.ShippingCostShareLabel.Text = "Shipping Cost in Foreign Currency:";
             // 
             // ForeignItemPriceLabel
             // 
@@ -320,25 +346,43 @@
             // 
             // ItemPanel
             // 
-            this.ItemPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.ItemPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ItemPanel.AutoScroll = true;
             this.ItemPanel.Location = new System.Drawing.Point(6, 22);
             this.ItemPanel.Name = "ItemPanel";
-            this.ItemPanel.Size = new System.Drawing.Size(590, 234);
+            this.ItemPanel.Size = new System.Drawing.Size(1520, 234);
             this.ItemPanel.TabIndex = 0;
+            // 
+            // CustomsFeeShareLabel
+            // 
+            this.CustomsFeeShareLabel.AutoSize = true;
+            this.CustomsFeeShareLabel.Location = new System.Drawing.Point(1000, 6);
+            this.CustomsFeeShareLabel.Name = "CustomsFeeShareLabel";
+            this.CustomsFeeShareLabel.Size = new System.Drawing.Size(174, 13);
+            this.CustomsFeeShareLabel.TabIndex = 9;
+            this.CustomsFeeShareLabel.Text = "Customs Fee in Domestic Currency:";
+            // 
+            // OtherCostShareLabel
+            // 
+            this.OtherCostShareLabel.AutoSize = true;
+            this.OtherCostShareLabel.Location = new System.Drawing.Point(1200, 6);
+            this.OtherCostShareLabel.Name = "OtherCostShareLabel";
+            this.OtherCostShareLabel.Size = new System.Drawing.Size(163, 13);
+            this.OtherCostShareLabel.TabIndex = 10;
+            this.OtherCostShareLabel.Text = "Other Cost in Domestic Currency:";
             // 
             // ItemPricesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(634, 311);
+            this.ClientSize = new System.Drawing.Size(1584, 311);
             this.Controls.Add(this.MainTabControl);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(650, 350);
-            this.MinimumSize = new System.Drawing.Size(650, 290);
+            this.MaximumSize = new System.Drawing.Size(1920, 1230);
+            this.MinimumSize = new System.Drawing.Size(1280, 300);
             this.Name = "ItemPricesForm";
             this.Text = "ItemPricesBasicsForm";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
@@ -363,7 +407,6 @@
         private System.Windows.Forms.TabControl MainTabControl;
         private System.Windows.Forms.TabPage BasicsTabPage;
         private System.Windows.Forms.TabPage ItemsTabPage;
-        private System.Windows.Forms.Panel ItemPanel;
         private System.Windows.Forms.Label OtherCostsLabel;
         private System.Windows.Forms.Label CustomsFeesLabel;
         private System.Windows.Forms.Label CreditCardFeesLabel;
@@ -378,9 +421,14 @@
         private System.Windows.Forms.NumericUpDown ShippingCostUpDown;
         private System.Windows.Forms.ComboBox ShippinCostSplitComboBox;
         private System.Windows.Forms.NumericUpDown NumberOfItemsUpDown;
+        private System.Windows.Forms.Button ResetButton;
+        private System.Windows.Forms.Label CreditCardFeeShareLabel;
+        private System.Windows.Forms.Label CreditCardChargeShareLabel;
         private System.Windows.Forms.Label DomesticItemPriceLabel;
         private System.Windows.Forms.Label ShippingCostShareLabel;
         private System.Windows.Forms.Label ForeignItemPriceLabel;
-        private System.Windows.Forms.Button ResetButton;
+        private System.Windows.Forms.Panel ItemPanel;
+        private System.Windows.Forms.Label OtherCostShareLabel;
+        private System.Windows.Forms.Label CustomsFeeShareLabel;
     }
 }

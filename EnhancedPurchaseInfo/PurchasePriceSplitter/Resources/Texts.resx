@@ -147,9 +147,6 @@
   <data name="ShippingCostInForeignCurrency" xml:space="preserve">
     <value>Shipping Cost in Foreign Currency</value>
   </data>
-  <data name="ShippingCostShareInForeignCurrency" xml:space="preserve">
-    <value>Shipping Cost Share in Foreign Currency</value>
-  </data>
   <data name="SplitType" xml:space="preserve">
     <value>Type of Split</value>
   </data>

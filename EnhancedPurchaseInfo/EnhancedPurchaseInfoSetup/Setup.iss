@@ -1,7 +1,7 @@
 [Setup]
 AppName=Enhanced Purchase Info
 AppId=EnhancedPurchaseInfo
-AppVerName=Enhanced Purchase Info 1.1.3.3
+AppVerName=Enhanced Purchase Info 1.1.3.4
 AppCopyright=Copyright © Doena Soft. 2015 - 2018
 AppPublisher=Doena Soft.
 AppPublisherURL=http://doena-journal.net/en/dvd-profiler-tools/
@@ -22,7 +22,7 @@ ShowLanguageDialog=no
 VersionInfoCompany=Doena Soft.
 VersionInfoCopyright=2015 - 2018
 VersionInfoDescription=Enhanced Purchase Info Setup
-VersionInfoVersion=1.1.3.3
+VersionInfoVersion=1.1.3.4
 UninstallDisplayIcon={app}\djdsoft.ico
 
 [Languages]
