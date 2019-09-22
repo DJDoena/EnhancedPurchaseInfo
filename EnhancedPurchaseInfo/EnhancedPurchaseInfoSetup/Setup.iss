@@ -1,11 +1,11 @@
 [Setup]
 AppName=Enhanced Purchase Info
 AppId=EnhancedPurchaseInfo
-AppVerName=Enhanced Purchase Info 1.1.3.4
-AppCopyright=Copyright © Doena Soft. 2015 - 2018
+AppVerName=Enhanced Purchase Info 1.1.3.5
+AppCopyright=Copyright © Doena Soft. 2015 - 2019
 AppPublisher=Doena Soft.
 AppPublisherURL=http://doena-journal.net/en/dvd-profiler-tools/
-DefaultDirName={pf32}\Doena Soft.\Enhanced Purchase Info
+DefaultDirName={commonpf32}\Doena Soft.\Enhanced Purchase Info
 DefaultGroupName=Enhanced Purchase Info
 DirExistsWarning=No
 SourceDir=..\EnhancedPurchaseInfo\bin\x86\EnhancedPurchaseInfo
@@ -13,16 +13,16 @@ Compression=zip/9
 AppMutex=InvelosDVDPro
 OutputBaseFilename=EnhancedPurchaseInfoSetup
 OutputDir=..\..\..\..\EnhancedPurchaseInfoSetup\Setup\EnhancedPurchaseInfo
-MinVersion=0,5.1
+MinVersion=0,6.0
 PrivilegesRequired=admin
 WizardImageFile=compiler:wizmodernimage-is.bmp
 WizardSmallImageFile=compiler:wizmodernsmallimage-is.bmp
 DisableReadyPage=yes
 ShowLanguageDialog=no
 VersionInfoCompany=Doena Soft.
-VersionInfoCopyright=2015 - 2018
+VersionInfoCopyright=2015 - 2019
 VersionInfoDescription=Enhanced Purchase Info Setup
-VersionInfoVersion=1.1.3.4
+VersionInfoVersion=1.1.3.5
 UninstallDisplayIcon={app}\djdsoft.ico
 
 [Languages]
