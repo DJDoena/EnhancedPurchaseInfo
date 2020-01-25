@@ -5,7 +5,7 @@ using System.Reflection;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Doena Soft.")]
 [assembly: AssemblyProduct("Enhanced Purchase Info")]
-[assembly: AssemblyCopyright("Copyright © Doena Soft. 2015 - 2019")]
+[assembly: AssemblyCopyright("Copyright © Doena Soft. 2015 - 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
