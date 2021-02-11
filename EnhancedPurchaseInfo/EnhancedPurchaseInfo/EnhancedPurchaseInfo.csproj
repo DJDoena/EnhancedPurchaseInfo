@@ -61,7 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\PluginInterface\PluginInterface.5.cs">
-      <Link>PluginInterface.4.cs</Link>
+      <Link>PluginInterface.5.cs</Link>
     </Compile>
     <Compile Include="InternalConstants.cs" />
     <Compile Include="Managers\XmlManager.cs" />
