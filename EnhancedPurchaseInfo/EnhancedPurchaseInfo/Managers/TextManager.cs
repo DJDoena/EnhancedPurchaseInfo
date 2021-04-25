@@ -6,58 +6,36 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 {
     internal sealed class TextManager
     {
-        private const String TextNotSet = null;
+        private const string TextNotSet = null;
 
-        private const Int64 PriceNotSet = -1;
+        public const decimal DigitDivider = 10000m;
 
-        private const Int32 CurrencyNotSet = -1;
-
-        public const Decimal DigitDivider = 10000m;
-
-        private readonly IDVDInfo Profile;
+        private readonly IDVDInfo _profile;
 
         public TextManager(IDVDInfo profile)
         {
-            Profile = profile;
+            _profile = profile;
         }
 
         #region Plugin Data
 
         #region CouponType
 
-        internal String GetCouponTypeWithFallback()
-        {
-            return (GetTextWithFallback(GetCouponType));
-        }
+        internal string GetCouponTypeWithFallback() => GetTextWithFallback(GetCouponType);
 
-        internal Boolean GetCouponType(out String ct)
-        {
-            return (GetText(Constants.CouponType, out ct));
-        }
+        internal bool GetCouponType(out string ct) => GetText(Constants.CouponType, out ct);
 
-        internal void SetCouponType(String ct)
-        {
-            SetText(Constants.CouponType, ct);
-        }
+        internal void SetCouponType(string ct) => SetText(Constants.CouponType, ct);
 
         #endregion
 
         #region CouponCode
 
-        internal String GetCouponCodeWithFallback()
-        {
-            return (GetTextWithFallback(GetCouponCode));
-        }
+        internal string GetCouponCodeWithFallback() => GetTextWithFallback(GetCouponCode);
 
-        internal Boolean GetCouponCode(out String cc)
-        {
-            return (GetText(Constants.CouponCode, out cc));
-        }
+        internal bool GetCouponCode(out string cc) => GetText(Constants.CouponCode, out cc);
 
-        internal void SetCouponCode(String cc)
-        {
-            SetText(Constants.CouponCode, cc);
-        }
+        internal void SetCouponCode(string cc) => SetText(Constants.CouponCode, cc);
 
         #endregion
 
@@ -65,46 +43,45 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region Text
 
-        private delegate Boolean GetTextDelegate(out String text);
+        private delegate bool GetTextDelegate(out string text);
 
-        internal Boolean GetText(String fieldName, out String text)
+        internal bool GetText(string fieldName, out string text)
         {
-            String encoded;
-            String decoded;
+            var decoded = TextNotSet;
 
-            decoded = TextNotSet;
-            encoded = Profile.GetCustomString(Constants.FieldDomain, fieldName, Constants.ReadKey, TextNotSet);
+            var encoded = _profile.GetCustomString(Constants.FieldDomain, fieldName, Constants.ReadKey, TextNotSet);
+
             if (encoded != TextNotSet)
             {
                 decoded = Encoding.Unicode.GetString(Convert.FromBase64String(encoded));
             }
+
             text = decoded;
-            return (text != TextNotSet);
+
+            return text != TextNotSet;
         }
 
-        private String GetTextWithFallback(GetTextDelegate getText)
+        private string GetTextWithFallback(GetTextDelegate getText)
         {
-            String text;
-
-            if (getText(out text) == false)
+            if (getText(out var text) == false)
             {
-                text = String.Empty;
+                text = string.Empty;
             }
-            return (text);
+
+            return text;
         }
 
-        private void SetText(String fieldName, String decoded)
+        private void SetText(string fieldName, string decoded)
         {
-            String encoded;
-
-            if (String.IsNullOrEmpty(decoded))
+            if (string.IsNullOrEmpty(decoded))
             {
-                Profile.ClearCustomField(Constants.FieldDomain, fieldName, InternalConstants.WriteKey);
+                _profile.ClearCustomField(Constants.FieldDomain, fieldName, InternalConstants.WriteKey);
             }
             else
             {
-                encoded = Convert.ToBase64String(Encoding.Unicode.GetBytes(decoded));
-                Profile.SetCustomString(Constants.FieldDomain, fieldName, InternalConstants.WriteKey, encoded);
+                var encoded = Convert.ToBase64String(Encoding.Unicode.GetBytes(decoded));
+
+                _profile.SetCustomString(Constants.FieldDomain, fieldName, InternalConstants.WriteKey, encoded);
             }
         }
 

@@ -1,12 +1,11 @@
-﻿using DoenaSoft.DVDProfiler.DVDProfilerHelper;
-using DoenaSoft.DVDProfiler.EnhancedPurchaseInfo.Resources;
-using Invelos.DVDProfilerPlugin;
-using Microsoft.WindowsAPICodePack.Taskbar;
-using System;
-using System.Globalization;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
+using DoenaSoft.DVDProfiler.DVDProfilerHelper;
+using DoenaSoft.DVDProfiler.EnhancedPurchaseInfo.Resources;
+using Invelos.DVDProfilerPlugin;
+using Microsoft.WindowsAPICodePack.Taskbar;
 
 namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 {
@@ -21,32 +20,26 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region Export
 
-        internal void Export(Boolean exportAll)
+        internal void Export(bool exportAll)
         {
-            using (SaveFileDialog sfd = new SaveFileDialog())
+            using (var sfd = new SaveFileDialog()
             {
-                sfd.AddExtension = true;
-                sfd.DefaultExt = ".csv";
-                sfd.Filter = "CSV (comma-separated values) files|*.csv";
-                sfd.OverwritePrompt = true;
-                sfd.RestoreDirectory = true;
-                sfd.Title = Texts.SaveXmlFile;
-                sfd.FileName = "EnhancedPurchaseInfos.csv";
-
+                AddExtension = true,
+                DefaultExt = ".csv",
+                Filter = "CSV (comma-separated values) files|*.csv",
+                OverwritePrompt = true,
+                RestoreDirectory = true,
+                Title = Texts.SaveXmlFile,
+                FileName = "EnhancedPurchaseInfos.csv",
+            })
+            {
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    CultureInfo currentCulture;
-                    Object[] ids;
-                    String listSeparator;
-                    String dateFormat;
-                    DefaultValues dv;
-
                     Cursor.Current = Cursors.WaitCursor;
-                    using (ProgressWindow progressWindow = new ProgressWindow())
+
+                    using (var progressWindow = new ProgressWindow())
                     {
                         #region Progress
-
-                        Int32 onePercent;
 
                         progressWindow.ProgressBar.Minimum = 0;
                         progressWindow.ProgressBar.Step = 1;
@@ -54,31 +47,31 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
                         #endregion
 
-                        currentCulture = Application.CurrentCulture;
-                        listSeparator = currentCulture.TextInfo.ListSeparator;
-                        dateFormat = currentCulture.DateTimeFormat.ShortDatePattern;
+                        var currentCulture = Application.CurrentCulture;
 
-                        dv = Plugin.Settings.DefaultValues;
+                        var listSeparator = currentCulture.TextInfo.ListSeparator;
 
-                        if (exportAll)
-                        {
-                            ids = (Object[])(Plugin.Api.GetAllProfileIDs());
-                        }
-                        else
-                        {
-                            ids = (Object[])(Plugin.Api.GetFlaggedProfileIDs());
-                        }
+                        var dateFormat = currentCulture.DateTimeFormat.ShortDatePattern;
+
+                        var dv = Plugin.Settings.DefaultValues;
+
+                        var ids = exportAll
+                            ? (object[])(Plugin.Api.GetAllProfileIDs())
+                            : (object[])(Plugin.Api.GetFlaggedProfileIDs());
 
                         #region Progress
 
                         progressWindow.ProgressBar.Maximum = ids.Length;
                         progressWindow.Show();
+
                         if (TaskbarManager.IsPlatformSupported)
                         {
                             TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
                             TaskbarManager.Instance.SetProgressValue(0, progressWindow.ProgressBar.Maximum);
                         }
-                        onePercent = progressWindow.ProgressBar.Maximum / 100;
+
+                        var onePercent = progressWindow.ProgressBar.Maximum / 100;
+
                         if ((progressWindow.ProgressBar.Maximum % 100) != 0)
                         {
                             onePercent++;
@@ -88,9 +81,9 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
                         try
                         {
-                            using (FileStream fs = new FileStream(sfd.FileName, FileMode.Create, FileAccess.Write, FileShare.Read))
+                            using (var fs = new FileStream(sfd.FileName, FileMode.Create, FileAccess.Write, FileShare.Read))
                             {
-                                using (StreamWriter sw = new StreamWriter(fs, Encoding.GetEncoding(1252)))
+                                using (var sw = new StreamWriter(fs, Encoding.GetEncoding(1252)))
                                 {
                                     #region Header
 
@@ -226,25 +219,21 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
                                     #endregion
 
-                                    for (Int32 i = 0; i < ids.Length; i++)
+                                    for (int idIndex = 0; idIndex < ids.Length; idIndex++)
                                     {
                                         #region Row
 
-                                        String id;
+                                        var id = ids[idIndex].ToString();
+
                                         IDVDInfo profile;
-                                        PriceManager priceManager;
-                                        TextManager textManager;
-                                        DateManager dateManager;
-
-                                        id = ids[i].ToString();
-
-                                        if ((dv.Title) || (dv.Edition) || (dv.SortTitle) || (dv.PurchasePrice) || (dv.SRP) || (dv.PurchaseDate))
+                                        if (dv.Title || dv.Edition || dv.SortTitle || dv.PurchasePrice || dv.SRP || dv.PurchaseDate)
                                         {
                                             Plugin.Api.DVDByProfileID(out profile, id, PluginConstants.DATASEC_AllSections, 0);
                                         }
                                         else
                                         {
                                             profile = Plugin.Api.CreateDVD();
+
                                             profile.SetProfileID(id);
                                         }
 
@@ -258,7 +247,9 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                                         if (dv.Title)
                                         {
                                             sw.Write("\"");
+
                                             WriteText(sw, profile.GetTitle());
+
                                             sw.Write("\"");
                                             sw.Write(listSeparator);
                                         }
@@ -266,7 +257,9 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                                         if (dv.Edition)
                                         {
                                             sw.Write("\"");
+
                                             WriteText(sw, profile.GetEdition());
+
                                             sw.Write("\"");
                                             sw.Write(listSeparator);
                                         }
@@ -274,7 +267,9 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                                         if (dv.SortTitle)
                                         {
                                             sw.Write("\"");
+
                                             WriteText(sw, profile.GetSortTitle());
+
                                             sw.Write("\"");
                                             sw.Write(listSeparator);
                                         }
@@ -282,7 +277,9 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                                         if (dv.PurchasePlace)
                                         {
                                             sw.Write("\"");
+
                                             WriteText(sw, profile.GetPurchasePlace());
+
                                             sw.Write("\"");
                                             sw.Write(listSeparator);
                                         }
@@ -297,11 +294,10 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                                         {
                                             if (profile.GetPurchasePriceIsEmpty() == false)
                                             {
-                                                Int64 price;
-                                                CurrencyInfo ci;
+                                                var price = profile.GetPurchasePriceValue();
 
-                                                price = profile.GetPurchasePriceValue();
-                                                ci = new CurrencyInfo(profile.GetPurchasePriceCurrency());
+                                                var ci = new CurrencyInfo(profile.GetPurchasePriceCurrency());
+
                                                 WritePrice(price, ci, sw, listSeparator);
                                             }
                                             else
@@ -312,11 +308,10 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                                         }
                                         if (dv.SRP)
                                         {
-                                            Int64 price;
-                                            CurrencyInfo ci;
+                                            var price = profile.GetSRPValue();
 
-                                            price = profile.GetSRPValue();
-                                            ci = new CurrencyInfo(profile.GetSRPCurrency());
+                                            var ci = new CurrencyInfo(profile.GetSRPCurrency());
+
                                             WritePrice(price, ci, sw, listSeparator);
                                         }
 
@@ -324,45 +319,55 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
                                         #region Plugin Data
 
-                                        priceManager = new PriceManager(profile);
-                                        textManager = new TextManager(profile);
+                                        var priceManager = new PriceManager(profile);
+
+                                        var textManager = new TextManager(profile);
 
                                         if (dv.OriginalPrice)
                                         {
                                             WritePrice(priceManager.GetOriginalPrice, priceManager.GetOriginalPriceCurrency, sw, listSeparator);
                                         }
+
                                         if (dv.ShippingCost)
                                         {
                                             WritePrice(priceManager.GetShippingCost, priceManager.GetShippingCostCurrency, sw, listSeparator);
                                         }
+
                                         if (dv.CreditCardCharge)
                                         {
                                             WritePrice(priceManager.GetCreditCardCharge, priceManager.GetCreditCardChargeCurrency, sw, listSeparator);
                                         }
+
                                         if (dv.CreditCardFees)
                                         {
                                             WritePrice(priceManager.GetCreditCardFees, priceManager.GetCreditCardFeesCurrency, sw, listSeparator);
                                         }
+
                                         if (dv.Discount)
                                         {
                                             WritePrice(priceManager.GetDiscount, priceManager.GetDiscountCurrency, sw, listSeparator);
                                         }
+
                                         if (dv.CustomsFees)
                                         {
                                             WritePrice(priceManager.GetCustomsFees, priceManager.GetCustomsFeesCurrency, sw, listSeparator);
                                         }
+
                                         if (dv.CouponType)
                                         {
                                             WriteText(textManager.GetCouponTypeWithFallback(), sw, listSeparator);
                                         }
+
                                         if (dv.CouponCode)
                                         {
                                             WriteText(textManager.GetCouponCodeWithFallback(), sw, listSeparator);
                                         }
+
                                         if (dv.AdditionalPrice1)
                                         {
                                             WritePrice(priceManager.GetAdditionalPrice1, priceManager.GetAdditionalPrice1Currency, sw, listSeparator);
                                         }
+
                                         if (dv.AdditionalPrice2)
                                         {
                                             WritePrice(priceManager.GetAdditionalPrice2, priceManager.GetAdditionalPrice2Currency, sw, listSeparator);
@@ -378,14 +383,12 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
                                         if (dv.PurchaseDate)
                                         {
-                                            DateTime date;
+                                            var date = profile.GetPurchaseDate();
 
-                                            date = profile.GetPurchaseDate();
-                                            if (date != DateManager.DateNotSet)
+                                            if (date != DateManager._dateNotSet)
                                             {
-                                                String stringDate;
+                                                var stringDate = date.ToString(dateFormat);
 
-                                                stringDate = date.ToString(dateFormat);
                                                 sw.Write(stringDate);
                                                 sw.Write(listSeparator);
                                             }
@@ -399,24 +402,28 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
                                         #region Plugin Data
 
-                                        dateManager = new DateManager(profile);
+                                        var dateManager = new DateManager(profile);
 
                                         if (dv.OrderDate)
                                         {
                                             WriteDate(dateManager.GetOrderDate, sw, dateFormat, listSeparator);
                                         }
+
                                         if (dv.ShippingDate)
                                         {
                                             WriteDate(dateManager.GetShippingDate, sw, dateFormat, listSeparator);
                                         }
+
                                         if (dv.DeliveryDate)
                                         {
                                             WriteDate(dateManager.GetDeliveryDate, sw, dateFormat, listSeparator);
                                         }
+
                                         if (dv.AdditionalDate1)
                                         {
                                             WriteDate(dateManager.GetAdditionalDate1, sw, dateFormat, listSeparator);
                                         }
+
                                         if (dv.AdditionalDate2)
                                         {
                                             WriteDate(dateManager.GetAdditionalDate2, sw, dateFormat, listSeparator);
@@ -431,10 +438,12 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                                         #region Progress
 
                                         progressWindow.ProgressBar.PerformStep();
+
                                         if (TaskbarManager.IsPlatformSupported)
                                         {
                                             TaskbarManager.Instance.SetProgressValue(progressWindow.ProgressBar.Value, progressWindow.ProgressBar.Maximum);
                                         }
+
                                         if ((progressWindow.ProgressBar.Value % onePercent) == 0)
                                         {
                                             Application.DoEvents();
@@ -450,21 +459,23 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                             #region Progress
 
                             Application.DoEvents();
+
                             if (TaskbarManager.IsPlatformSupported)
                             {
                                 TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
                             }
+
                             progressWindow.CanClose = true;
                             progressWindow.Close();
 
                             #endregion
 
-                            MessageBox.Show(String.Format(MessageBoxTexts.DoneWithNumber, ids.Length, MessageBoxTexts.Exported)
+                            MessageBox.Show(string.Format(MessageBoxTexts.DoneWithNumber, ids.Length, MessageBoxTexts.Exported)
                                 , MessageBoxTexts.InformationHeader, MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show(String.Format(MessageBoxTexts.FileCantBeWritten, sfd.FileName, ex.Message)
+                            MessageBox.Show(string.Format(MessageBoxTexts.FileCantBeWritten, sfd.FileName, ex.Message)
                               , MessageBoxTexts.ErrorHeader, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                         finally
@@ -477,6 +488,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                                 {
                                     TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
                                 }
+
                                 progressWindow.CanClose = true;
                                 progressWindow.Close();
                             }
@@ -490,18 +502,12 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        private static void WriteDate(DateManager.GetDateDelegate getDate
-            , StreamWriter sw
-            , String dateFormat
-            , String listSeparator)
+        private static void WriteDate(DateManager.GetDateDelegate getDate, StreamWriter sw, string dateFormat, string listSeparator)
         {
-            DateTime date;
-
-            if (getDate(out date))
+            if (getDate(out var date))
             {
-                String stringDate;
+                var stringDate = date.ToString(dateFormat);
 
-                stringDate = date.ToString(dateFormat);
                 sw.Write(stringDate);
                 sw.Write(listSeparator);
             }
@@ -511,18 +517,12 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        private static void WritePrice(PriceManager.GetPriceDelegate getPrice
-            , PriceManager.GetCurrencyDelegate getCurrency
-            , StreamWriter sw
-            , String listSeparator)
+        private static void WritePrice(PriceManager.GetPriceDelegate getPrice, PriceManager.GetCurrencyDelegate getCurrency, StreamWriter sw, string listSeparator)
         {
-            Decimal price;
-
-            if (getPrice(out price))
+            if (getPrice(out var price))
             {
-                CurrencyInfo ci;
+                getCurrency(out var ci);
 
-                getCurrency(out ci);
                 WritePrice(price, ci, sw, listSeparator);
             }
             else
@@ -532,10 +532,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        private static void WritePrice(Decimal price
-            , CurrencyInfo ci
-            , StreamWriter sw
-            , String listSeparator)
+        private static void WritePrice(decimal price, CurrencyInfo ci, StreamWriter sw, string listSeparator)
         {
             sw.Write(ci.GetFormattedPlainValue(price));
             sw.Write(listSeparator);
@@ -543,10 +540,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             sw.Write(listSeparator);
         }
 
-        private static void WritePrice(Int64 price
-            , CurrencyInfo ci
-            , StreamWriter sw
-            , String listSeparator)
+        private static void WritePrice(long price, CurrencyInfo ci, StreamWriter sw, string listSeparator)
         {
             sw.Write(ci.GetFormattedPlainValue(price));
             sw.Write(listSeparator);
@@ -554,47 +548,49 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             sw.Write(listSeparator);
         }
 
-        private static void WriteText(String text
-            , StreamWriter sw
-            , String listSeparator)
+        private static void WriteText(string text, StreamWriter sw, string listSeparator)
         {
             sw.Write("\"");
+
             WriteText(sw, text);
+
             sw.Write("\"");
             sw.Write(listSeparator);
         }
 
-        private static void WritePriceHeader(String header
-            , StreamWriter sw
-            , String listSeparator)
+        private static void WritePriceHeader(string header, StreamWriter sw, string listSeparator)
         {
             sw.Write("\"");
+
             WriteText(sw, header);
+
             sw.Write("\"");
             sw.Write(listSeparator);
             sw.Write("\"");
+
             WriteText(sw, header + " (" + Texts.Currency + ")");
+
             sw.Write("\"");
             sw.Write(listSeparator);
         }
 
-        private static void WriteTextHeader(String header
-            , StreamWriter sw
-            , String listSeparator)
+        private static void WriteTextHeader(string header, StreamWriter sw, string listSeparator)
         {
             sw.Write("\"");
+
             WriteText(sw, header);
+
             sw.Write("\"");
             sw.Write(listSeparator);
         }
 
-        private static void WriteText(StreamWriter sw
-            , String text)
+        private static void WriteText(StreamWriter sw, string text)
         {
-            if (String.IsNullOrEmpty(text) == false)
+            if (string.IsNullOrEmpty(text) == false)
             {
                 text = text.Replace("\"", "\"\"");
             }
+
             sw.Write(text);
         }
 

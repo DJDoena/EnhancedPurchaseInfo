@@ -19,85 +19,91 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
     [Guid(ClassGuid.ClassID), ComVisible(true)]
     public class Plugin : IDVDProfilerPlugin, IDVDProfilerPluginInfo, IDVDProfilerDataAwarePlugin
     {
-        private readonly String SettingsFile;
+        private readonly string _settingsFile;
 
-        private readonly String ErrorFile;
+        private readonly string _errorFile;
 
-        private readonly String ApplicationPath;
+        private readonly string _applicationPath;
+
+        private string _currentProfileId;
+
+        private bool _databaseRestoreRunning;
 
         internal IDVDProfilerAPI Api { get; private set; }
 
         internal Settings Settings { get; private set; }
 
-        internal Dictionary<String, CurrencyInfo> Currencies { get; private set; }
+        internal Dictionary<string, CurrencyInfo> Currencies { get; private set; }
 
         internal CurrencyInfo DefaultCurrency { get; set; }
 
-        private String CurrentProfileId;
+        internal Dictionary<string, ushort> CouponTypes { get; }
 
-        private Boolean DatabaseRestoreRunning = false;
-
-        internal readonly Dictionary<String, UInt16> CouponTypes;
-        internal Boolean IsRemoteAccess { get; private set; }
+        internal bool IsRemoteAccess { get; private set; }
 
         #region MenuTokens
 
-        private String DvdMenuToken = "";
+        private string _dvdMenuToken = "";
 
-        private const Int32 DvdMenuId = 1;
+        private const int DvdMenuId = 1;
 
-        private String PersonalizeScreenToken = "";
+        private string _personalizeScreenToken = "";
 
-        private const Int32 PersonalizeScreenId = 11;
+        private const int PersonalizeScreenId = 11;
 
-        private String CollectionExportToXmlMenuToken = "";
+        private string _collectionExportToXmlMenuToken = "";
 
-        private const Int32 CollectionExportToXmlMenuId = 21;
+        private const int CollectionExportToXmlMenuId = 21;
 
-        private String CollectionImportMenuToken = "";
+        private string _collectionImportMenuToken = "";
 
-        private const Int32 CollectionImportMenuId = 22;
+        private const int CollectionImportMenuId = 22;
 
-        private String CollectionExportToCsvMenuToken = "";
+        private string _collectionExportToCsvMenuToken = "";
 
-        private const Int32 CollectionExportToCsvMenuId = 23;
+        private const int CollectionExportToCsvMenuId = 23;
 
-        private String CollectionFlaggedExportToXmlMenuToken = "";
+        private string _collectionFlaggedExportToXmlMenuToken = "";
 
-        private const Int32 CollectionFlaggedExportToXmlMenuId = 31;
+        private const int CollectionFlaggedExportToXmlMenuId = 31;
 
-        private String CollectionFlaggedImportMenuToken = "";
+        private string _collectionFlaggedImportMenuToken = "";
 
-        private const Int32 CollectionFlaggedImportMenuId = 32;
+        private const int CollectionFlaggedImportMenuId = 32;
 
-        private String CollectionFlaggedExportToCsvMenuToken = "";
+        private string _collectionFlaggedExportToCsvMenuToken = "";
 
-        private const Int32 CollectionFlaggedExportToCsvMenuId = 33;
+        private const int CollectionFlaggedExportToCsvMenuId = 33;
 
-        private String ToolsOptionsMenuToken = "";
+        private string _toolsOptionsMenuToken = "";
 
-        private const Int32 ToolsOptionsMenuId = 41;
+        private const int ToolsOptionsMenuId = 41;
 
-        private String ToolsExportOptionsMenuToken = "";
+        private string _toolsExportOptionsMenuToken = "";
 
-        private const Int32 ToolsExportOptionsMenuId = 42;
+        private const int ToolsExportOptionsMenuId = 42;
 
-        private String ToolsImportOptionsMenuToken = "";
+        private string _toolsImportOptionsMenuToken = "";
 
-        private const Int32 ToolsImportOptionsMenuId = 43;
+        private const int ToolsImportOptionsMenuId = 43;
 
-        private String ToolsOpenCalculatorMenuToken = "";
+        private string _toolsOpenCalculatorMenuToken = "";
 
-        private const Int32 ToolsOpenCalculatorMenuId = 44;
+        private const int ToolsOpenCalculatorMenuId = 44;
 
         #endregion
 
         public Plugin()
         {
-            CouponTypes = new Dictionary<String, UInt16>();
-            ApplicationPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Doena Soft\EnhancedPurchaseInfo\";
-            SettingsFile = ApplicationPath + "EnhancedPurchaseInfo.xml";
-            ErrorFile = Environment.GetEnvironmentVariable("TEMP") + @"\EnhancedPurchaseInfoCrash.xml";
+            _databaseRestoreRunning = false;
+
+            CouponTypes = new Dictionary<string, ushort>();
+
+            _applicationPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Doena Soft\EnhancedPurchaseInfo\";
+
+            _settingsFile = _applicationPath + "EnhancedPurchaseInfo.xml";
+
+            _errorFile = Environment.GetEnvironmentVariable("TEMP") + @"\EnhancedPurchaseInfoCrash.xml";
         }
 
         #region I.. Members
@@ -110,19 +116,20 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
             Api = api;
 
-            if (Directory.Exists(ApplicationPath) == false)
+            if (Directory.Exists(_applicationPath) == false)
             {
-                Directory.CreateDirectory(ApplicationPath);
+                Directory.CreateDirectory(_applicationPath);
             }
-            if (File.Exists(SettingsFile))
+
+            if (File.Exists(_settingsFile))
             {
                 try
                 {
-                    Settings = Settings.Deserialize(SettingsFile);
+                    Settings = Settings.Deserialize(_settingsFile);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(String.Format(MessageBoxTexts.FileCantBeRead, SettingsFile, ex.Message)
+                    MessageBox.Show(string.Format(MessageBoxTexts.FileCantBeRead, _settingsFile, ex.Message)
                         , MessageBoxTexts.ErrorHeader, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
@@ -144,36 +151,36 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             Api.RegisterForEvent(PluginConstants.EVENTID_RestoreFinished);
             Api.RegisterForEvent(PluginConstants.EVENTID_RestoreCancelled);
 
-            DvdMenuToken = Api.RegisterMenuItemA(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
+            _dvdMenuToken = Api.RegisterMenuItemA(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
                 , "DVD", Texts.EPI, DvdMenuId, "", PluginConstants.SHORTCUT_KEY_A + 15, PluginConstants.SHORTCUT_MOD_Ctrl + PluginConstants.SHORTCUT_MOD_Shift, false);
 
-            CollectionExportToXmlMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
+            _collectionExportToXmlMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
                 , @"Collection\" + Texts.EPI, Texts.ExportToXml, CollectionExportToXmlMenuId);
             if (IsRemoteAccess == false)
             {
-                CollectionImportMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
+                _collectionImportMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
                     , @"Collection\" + Texts.EPI, Texts.ImportFromXml, CollectionImportMenuId);
             }
-            CollectionExportToCsvMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
+            _collectionExportToCsvMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
                 , @"Collection\" + Texts.EPI, Texts.ExportToExcel, CollectionExportToCsvMenuId);
 
-            CollectionFlaggedExportToXmlMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
+            _collectionFlaggedExportToXmlMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
                 , @"Collection\Flagged\" + Texts.EPI, Texts.ExportToXml, CollectionFlaggedExportToXmlMenuId);
             if (IsRemoteAccess == false)
             {
-                CollectionFlaggedImportMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
+                _collectionFlaggedImportMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
                    , @"Collection\Flagged\" + Texts.EPI, Texts.ImportFromXml, CollectionFlaggedImportMenuId);
             }
-            CollectionFlaggedExportToCsvMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
+            _collectionFlaggedExportToCsvMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
                 , @"Collection\Flagged\" + Texts.EPI, Texts.ExportToExcel, CollectionFlaggedExportToCsvMenuId);
 
-            ToolsOptionsMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
+            _toolsOptionsMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
                 , @"Tools\" + Texts.EPI, Texts.Options, ToolsOptionsMenuId);
-            ToolsExportOptionsMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
+            _toolsExportOptionsMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
                 , @"Tools\" + Texts.EPI, Texts.ExportOptions, ToolsExportOptionsMenuId);
-            ToolsImportOptionsMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
+            _toolsImportOptionsMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
                 , @"Tools\" + Texts.EPI, Texts.ImportOptions, ToolsImportOptionsMenuId);
-            ToolsOpenCalculatorMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
+            _toolsOpenCalculatorMenuToken = api.RegisterMenuItem(PluginConstants.FORMID_Main, PluginConstants.MENUID_Form
                 , @"Tools\" + Texts.EPI, Texts.ShippingCostCalculator, ToolsOpenCalculatorMenuId);
 
             RegisterCustomFields();
@@ -181,84 +188,93 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         public void Unload()
         {
-            Api.UnregisterMenuItem(DvdMenuToken);
+            Api.UnregisterMenuItem(_dvdMenuToken);
 
-            Api.UnregisterMenuItem(CollectionExportToXmlMenuToken);
-            Api.UnregisterMenuItem(CollectionImportMenuToken);
-            Api.UnregisterMenuItem(CollectionExportToCsvMenuToken);
+            Api.UnregisterMenuItem(_collectionExportToXmlMenuToken);
+            Api.UnregisterMenuItem(_collectionImportMenuToken);
+            Api.UnregisterMenuItem(_collectionExportToCsvMenuToken);
 
-            Api.UnregisterMenuItem(CollectionFlaggedExportToXmlMenuToken);
-            Api.UnregisterMenuItem(CollectionFlaggedImportMenuToken);
-            Api.UnregisterMenuItem(CollectionFlaggedExportToCsvMenuToken);
+            Api.UnregisterMenuItem(_collectionFlaggedExportToXmlMenuToken);
+            Api.UnregisterMenuItem(_collectionFlaggedImportMenuToken);
+            Api.UnregisterMenuItem(_collectionFlaggedExportToCsvMenuToken);
 
-            Api.UnregisterMenuItem(ToolsOptionsMenuToken);
-            Api.UnregisterMenuItem(ToolsExportOptionsMenuToken);
-            Api.UnregisterMenuItem(ToolsImportOptionsMenuToken);
-            Api.UnregisterMenuItem(ToolsOpenCalculatorMenuToken);
+            Api.UnregisterMenuItem(_toolsOptionsMenuToken);
+            Api.UnregisterMenuItem(_toolsExportOptionsMenuToken);
+            Api.UnregisterMenuItem(_toolsImportOptionsMenuToken);
+            Api.UnregisterMenuItem(_toolsOpenCalculatorMenuToken);
 
             try
             {
-                Settings.Serialize(SettingsFile);
+                Settings.Serialize(_settingsFile);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(String.Format(MessageBoxTexts.FileCantBeWritten, SettingsFile, ex.Message)
+                MessageBox.Show(string.Format(MessageBoxTexts.FileCantBeWritten, _settingsFile, ex.Message)
                     , MessageBoxTexts.ErrorHeader, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             Api = null;
         }
 
-        public void HandleEvent(Int32 EventType, Object EventData)
+        public void HandleEvent(int EventType, object EventData)
         {
             try
             {
                 switch (EventType)
                 {
-                    case (PluginConstants.EVENTID_CustomMenuClick):
+                    case PluginConstants.EVENTID_CustomMenuClick:
                         {
-                            HandleMenuClick((Int32)EventData);
+                            HandleMenuClick((int)EventData);
+
                             break;
                         }
-                    case (PluginConstants.EVENTID_FormCreated):
+                    case PluginConstants.EVENTID_FormCreated:
                         {
-                            if ((Int32)EventData == PluginConstants.FORMID_Personalize)
+                            if ((int)EventData == PluginConstants.FORMID_Personalize)
                             {
-                                PersonalizeScreenToken = Api.RegisterMenuItemA(PluginConstants.FORMID_Personalize, PluginConstants.MENUID_Form
+                                _personalizeScreenToken = Api.RegisterMenuItemA(PluginConstants.FORMID_Personalize, PluginConstants.MENUID_Form
                                     , Texts.EPI, Texts.EPI, PersonalizeScreenId, "", PluginConstants.SHORTCUT_KEY_A + 15, PluginConstants.SHORTCUT_MOD_Ctrl + PluginConstants.SHORTCUT_MOD_Shift, false);
                             }
+
                             break;
                         }
-                    case (PluginConstants.EVENTID_FormDestroyed):
+                    case PluginConstants.EVENTID_FormDestroyed:
                         {
-                            if ((Int32)EventData == PluginConstants.FORMID_Personalize)
+                            if ((int)EventData == PluginConstants.FORMID_Personalize)
                             {
-                                if (String.IsNullOrEmpty(PersonalizeScreenToken) == false)
+                                if (string.IsNullOrEmpty(_personalizeScreenToken) == false)
                                 {
-                                    Api.UnregisterMenuItem(PersonalizeScreenToken);
+                                    Api.UnregisterMenuItem(_personalizeScreenToken);
                                 }
-                                CurrentProfileId = null;
+
+                                _currentProfileId = null;
                             }
+
                             break;
                         }
-                    case (PluginConstants.EVENTID_RestoreStarting):
+                    case PluginConstants.EVENTID_RestoreStarting:
                         {
-                            DatabaseRestoreRunning = true;
+                            _databaseRestoreRunning = true;
+
                             RegisterCustomFields();
+
                             break;
                         }
-                    case (PluginConstants.EVENTID_DatabaseOpened):
-                    case (PluginConstants.EVENTID_RestoreFinished):
-                    case (PluginConstants.EVENTID_RestoreCancelled):
+                    case PluginConstants.EVENTID_DatabaseOpened:
+                    case PluginConstants.EVENTID_RestoreFinished:
+                    case PluginConstants.EVENTID_RestoreCancelled:
                         {
-                            DatabaseRestoreRunning = false;
+                            _databaseRestoreRunning = false;
+
                             RegisterCustomFields();
+
                             break;
                         }
-                    case (PluginConstants.EVENTID_DVDPersonalizeShown):
+                    case PluginConstants.EVENTID_DVDPersonalizeShown:
                         {
                             //System.Diagnostics.Debugger.Launch();
-                            CurrentProfileId = (String)EventData;
+                            _currentProfileId = (string)EventData;
+
                             break;
                         }
                 }
@@ -267,17 +283,19 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             {
                 try
                 {
-                    MessageBox.Show(String.Format(MessageBoxTexts.CriticalError, ex.Message, ErrorFile)
+                    MessageBox.Show(string.Format(MessageBoxTexts.CriticalError, ex.Message, _errorFile)
                         , MessageBoxTexts.CriticalErrorHeader, MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                    if (File.Exists(ErrorFile))
+
+                    if (File.Exists(_errorFile))
                     {
-                        File.Delete(ErrorFile);
+                        File.Delete(_errorFile);
                     }
+
                     LogException(ex);
                 }
                 catch (Exception inEx)
                 {
-                    MessageBox.Show(String.Format(MessageBoxTexts.FileCantBeWritten, ErrorFile, inEx.Message)
+                    MessageBox.Show(string.Format(MessageBoxTexts.FileCantBeWritten, _errorFile, inEx.Message)
                         , MessageBoxTexts.ErrorHeader, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
@@ -287,259 +305,205 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region IDVDProfilerPluginInfo Members
 
-        public String GetName()
+        public string GetName() => Texts.PluginName;
+
+        public string GetDescription() => Texts.PluginDescription;
+
+        public string GetAuthorName() => "Doena Soft.";
+
+        public string GetAuthorWebsite() => Texts.PluginUrl;
+
+        public int GetPluginAPIVersion() => PluginConstants.API_VERSION;
+
+        public int GetVersionMajor()
         {
-            return (Texts.PluginName);
+            var version = System.Reflection.Assembly.GetAssembly(GetType()).GetName().Version;
+
+            return version.Major;
         }
 
-        public String GetDescription()
+        public int GetVersionMinor()
         {
-            return (Texts.PluginDescription);
-        }
+            var version = System.Reflection.Assembly.GetAssembly(GetType()).GetName().Version;
 
-        public String GetAuthorName()
-        {
-            return ("Doena Soft.");
-        }
-
-        public String GetAuthorWebsite()
-        {
-            return (Texts.PluginUrl);
-        }
-
-        public Int32 GetPluginAPIVersion()
-        {
-            return (PluginConstants.API_VERSION);
-        }
-
-        public Int32 GetVersionMajor()
-        {
-            Version version;
-
-            version = System.Reflection.Assembly.GetAssembly(GetType()).GetName().Version;
-            return (version.Major);
-        }
-
-        public Int32 GetVersionMinor()
-        {
-            Version version;
-
-            version = System.Reflection.Assembly.GetAssembly(GetType()).GetName().Version;
-            return (version.Minor * 100 + version.Build * 10 + version.Revision);
+            return version.Minor * 100 + version.Build * 10 + version.Revision;
         }
 
         #endregion
 
         #region IDVDProfilerDataAwarePlugin
 
-        public Boolean ExportsCustomDataXML()
+        public bool ExportsCustomDataXML() => Settings.DefaultValues.ExportToCollectionXml && _databaseRestoreRunning == false;
+
+        public string GetCustomDataXMLForDVD(IDVDInfo SourceDVD)
         {
-            Boolean exportsXml;
-
-            exportsXml = ((Settings.DefaultValues.ExportToCollectionXml)
-                && (DatabaseRestoreRunning == false));
-            return (exportsXml);
-        }
-
-        public String GetCustomDataXMLForDVD(IDVDInfo SourceDVD)
-        {
-            #region Prices
-
-            Decimal op;
-            Boolean hasOP;
-            Decimal sc;
-            Boolean hasSC;
-            Decimal ccc;
-            Boolean hasCCC;
-            Decimal ccf;
-            Boolean hasCCF;
-            Decimal discount;
-            Boolean hasDiscount;
-            Decimal cf;
-            Boolean hasCF;
-            String ct;
-            Boolean hasCT;
-            String cc;
-            Boolean hasCC;
-            Decimal ap1;
-            Boolean hasAP1;
-            Decimal ap2;
-            Boolean hasAP2;
-
-            #endregion
-
-            #region Dates
-
-            Boolean hasOD;
-            DateTime od;
-            Boolean hasSD;
-            DateTime sd;
-            Boolean hasDD;
-            DateTime dd;
-            Boolean hasAD1;
-            DateTime ad1;
-            Boolean hasAD2;
-            DateTime ad2;
-
-            #endregion
-
-            String xml;
-            PriceManager priceManager;
-            TextManager textManager;
-            DateManager dateManager;
-
             if (Settings.DefaultValues.ExportToCollectionXml == false)
             {
-                return (String.Empty);
+                return string.Empty;
             }
-            else if (DatabaseRestoreRunning)
+            else if (_databaseRestoreRunning)
             {
-                return (String.Empty);
+                return string.Empty;
             }
 
-            priceManager = new PriceManager(SourceDVD);
-            textManager = new TextManager(SourceDVD);
-            dateManager = new DateManager(SourceDVD);
+            var priceManager = new PriceManager(SourceDVD);
+
+            var textManager = new TextManager(SourceDVD);
+
+            var dateManager = new DateManager(SourceDVD);
 
             #region Prices
 
-            hasOP = priceManager.GetOriginalPrice(out op);
-            hasSC = priceManager.GetShippingCost(out sc);
-            hasCCC = priceManager.GetCreditCardCharge(out ccc);
-            hasCCF = priceManager.GetCreditCardFees(out ccf);
-            hasDiscount = priceManager.GetDiscount(out discount);
-            hasCF = priceManager.GetCustomsFees(out cf);
-            hasCT = textManager.GetCouponType(out ct);
-            hasCC = textManager.GetCouponCode(out cc);
-            hasAP1 = priceManager.GetAdditionalPrice1(out ap1);
-            hasAP2 = priceManager.GetAdditionalPrice2(out ap2);
+            var hasOP = priceManager.GetOriginalPrice(out var op);
+
+            var hasSC = priceManager.GetShippingCost(out var sc);
+
+            var hasCCC = priceManager.GetCreditCardCharge(out var ccc);
+
+            var hasCCF = priceManager.GetCreditCardFees(out var ccf);
+
+            var hasDiscount = priceManager.GetDiscount(out var discount);
+
+            var hasCF = priceManager.GetCustomsFees(out var cf);
+
+            var hasCT = textManager.GetCouponType(out var ct);
+
+            var hasCC = textManager.GetCouponCode(out var cc);
+
+            var hasAP1 = priceManager.GetAdditionalPrice1(out var ap1);
+
+            var hasAP2 = priceManager.GetAdditionalPrice2(out var ap2);
 
             #endregion
 
             #region Dates
 
-            hasOD = dateManager.GetOrderDate(out od);
-            hasSD = dateManager.GetShippingDate(out sd);
-            hasDD = dateManager.GetDeliveryDate(out dd);
-            hasAD1 = dateManager.GetAdditionalDate1(out ad1);
-            hasAD2 = dateManager.GetAdditionalDate2(out ad2);
+            var hasOD = dateManager.GetOrderDate(out var od);
+
+            var hasSD = dateManager.GetShippingDate(out var sd);
+
+            var hasDD = dateManager.GetDeliveryDate(out var dd);
+
+            var hasAD1 = dateManager.GetAdditionalDate1(out var ad1);
+
+            var hasAD2 = dateManager.GetAdditionalDate2(out var ad2);
 
             #endregion
 
-            IEnumerable<Boolean> hasPrices = ObjectExtensions.Enumerate(hasOP, hasSC, hasCCC, hasCCF, hasDiscount, hasCF, hasCT, hasCC, hasAP1, hasAP2);
+            IEnumerable<bool> hasPrices = ObjectExtensions.Enumerate(hasOP, hasSC, hasCCC, hasCCF, hasDiscount, hasCF, hasCT, hasCC, hasAP1, hasAP2);
 
-            IEnumerable<Boolean> hasDates = ObjectExtensions.Enumerate(hasOD, hasSD, hasDD, hasAD1, hasAD2);
+            IEnumerable<bool> hasDates = ObjectExtensions.Enumerate(hasOD, hasSD, hasDD, hasAD1, hasAD2);
 
             if (hasPrices.HasItemsWhere(price => price) || hasDates.HasItemsWhere(date => date))
             {
-                StringBuilder sb;
+                var sb = new StringBuilder("<EnhancedPurchaseInfo>");
 
-                sb = new StringBuilder("<EnhancedPurchaseInfo>");
                 AppendPrices(sb, hasOP, op, hasSC, sc, hasCCC, ccc, hasCCF, ccf, hasDiscount, discount, hasCF, cf, hasCT, ct
                     , hasCC, cc, hasAP1, ap1, hasAP2, ap2, priceManager);
+
                 AppendDates(sb, hasOD, od, hasSD, sd, hasDD, dd, hasAD1, ad1, hasAD2, ad2);
+
                 sb.Append("</EnhancedPurchaseInfo>");
-                xml = sb.ToString();
+
+                return sb.ToString();
             }
             else
             {
-                xml = String.Empty;
+                return string.Empty;
             }
-
-            return (xml);
         }
 
-        public String GetHTMLForDPVarsFunctionSection()
-        {
-            return (String.Empty);
-        }
+        public string GetHTMLForDPVarsFunctionSection() => string.Empty;
 
-        public String GetHTMLForDPVarsDataSection(IDVDInfo SourceDVD, IDVDInfo CompareDVD)
-        {
-            return (String.Empty);
-        }
+        public string GetHTMLForDPVarsDataSection(IDVDInfo SourceDVD, IDVDInfo CompareDVD) => string.Empty;
 
-        public String GetHTMLForTag(String TagName
-            , String FullTag
-            , IDVDInfo SourceDVD
-            , IDVDInfo CompareDVD
-            , out Boolean Handled)
+        public string GetHTMLForTag(string TagName, string FullTag, IDVDInfo SourceDVD, IDVDInfo CompareDVD, out bool Handled)
         {
-            PriceManager priceManager;
-            TextManager textManager;
-            DateManager dateManager;
-            String text;
-            DefaultValues dv;
-
-            if (String.IsNullOrEmpty(TagName))
+            if (string.IsNullOrEmpty(TagName))
             {
                 Handled = false;
 
-                return (null);
+                return null;
             }
             else if (TagName.StartsWith(Constants.HtmlPrefix + ".") == false)
             {
                 Handled = false;
 
-                return (null);
+                return null;
             }
 
-            priceManager = new PriceManager(SourceDVD);
-            textManager = new TextManager(SourceDVD);
-            dateManager = new DateManager(SourceDVD);
+            var priceManager = new PriceManager(SourceDVD);
+
+            var textManager = new TextManager(SourceDVD);
+
+            var dateManager = new DateManager(SourceDVD);
+
             Handled = true;
-            dv = Settings.DefaultValues;
+
+            var dv = Settings.DefaultValues;
+
+            string text;
             switch (TagName)
             {
                 #region Prices
                 case (Constants.HtmlPrefix + "." + Constants.OriginalPrice):
                     {
                         text = GetFormattedValue(priceManager.GetOriginalPrice, priceManager.GetOriginalPriceCurrency);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.ShippingCost):
                     {
                         text = GetFormattedValue(priceManager.GetShippingCost, priceManager.GetShippingCostCurrency);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.CreditCardCharge):
                     {
                         text = GetFormattedValue(priceManager.GetCreditCardCharge, priceManager.GetCreditCardChargeCurrency);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.CreditCardFees):
                     {
                         text = GetFormattedValue(priceManager.GetCreditCardFees, priceManager.GetCreditCardFeesCurrency);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.Discount):
                     {
                         text = GetFormattedValue(priceManager.GetDiscount, priceManager.GetDiscountCurrency);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.CustomsFees):
                     {
                         text = GetFormattedValue(priceManager.GetCustomsFees, priceManager.GetCustomsFeesCurrency);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.CouponType):
                     {
                         text = HtmlEncode(textManager.GetCouponTypeWithFallback());
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.CouponCode):
                     {
                         text = HtmlEncode(textManager.GetCouponCodeWithFallback());
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.AdditionalPrice1):
                     {
                         text = GetFormattedValue(priceManager.GetAdditionalPrice1, priceManager.GetAdditionalPrice1Currency);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.AdditionalPrice2):
                     {
                         text = GetFormattedValue(priceManager.GetAdditionalPrice2, priceManager.GetAdditionalPrice2Currency);
+
                         break;
                     }
                 #endregion
@@ -547,26 +511,31 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                 case (Constants.HtmlPrefix + "." + Constants.OrderDate):
                     {
                         text = GetFormattedValue(dateManager.GetOrderDate);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.ShippingDate):
                     {
                         text = GetFormattedValue(dateManager.GetShippingDate);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.DeliveryDate):
                     {
                         text = GetFormattedValue(dateManager.GetDeliveryDate);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.AdditionalDate1):
                     {
                         text = GetFormattedValue(dateManager.GetAdditionalDate1);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.AdditionalDate2):
                     {
                         text = GetFormattedValue(dateManager.GetAdditionalDate1);
+
                         break;
                     }
                 #endregion
@@ -575,51 +544,61 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                 case (Constants.HtmlPrefix + "." + Constants.OriginalPrice + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.OriginalPriceLabel);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.ShippingCost + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.ShippingCostLabel);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.CreditCardCharge + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.CreditCardChargeLabel);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.CreditCardFees + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.CreditCardFeesLabel);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.Discount + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.DiscountLabel);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.CustomsFees + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.CustomsFeesLabel);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.CouponType + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.CouponTypeLabel);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.CouponCode + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.CouponCodeLabel);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.AdditionalPrice1 + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.AdditionalPrice1Label);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.AdditionalPrice2 + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.AdditionalPrice2Label);
+
                         break;
                     }
                 #endregion
@@ -627,26 +606,31 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                 case (Constants.HtmlPrefix + "." + Constants.OrderDate + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.OrderDateLabel);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.ShippingDate + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.ShippingDateLabel);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.DeliveryDate + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.DeliveryDateLabel);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.AdditionalDate1 + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.AdditionalDate1Label);
+
                         break;
                     }
                 case (Constants.HtmlPrefix + "." + Constants.AdditionalDate2 + Constants.LabelSuffix):
                     {
                         text = HtmlEncode(dv.AdditionalDate2Label);
+
                         break;
                     }
                 #endregion
@@ -654,18 +638,19 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                 default:
                     {
                         Handled = false;
+
                         text = null;
+
                         break;
                     }
             }
-            return (text);
+
+            return text;
         }
 
-        public Object GetCustomHTMLTagNames()
+        public object GetCustomHTMLTagNames()
         {
-            String[] tags;
-
-            tags = new String[] { Constants.HtmlPrefix + "." + Constants.OriginalPrice
+            var tags = new[] { Constants.HtmlPrefix + "." + Constants.OriginalPrice
                 , Constants.HtmlPrefix + "." + Constants.ShippingCost
                 , Constants.HtmlPrefix + "." + Constants.CreditCardCharge
                 , Constants.HtmlPrefix + "." + Constants.CreditCardFees
@@ -685,18 +670,13 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                 , Constants.HtmlPrefix + "." + Constants.CouponCode + Constants.LabelSuffix
                 , Constants.HtmlPrefix + "." + Constants.AdditionalPrice1 + Constants.LabelSuffix
                 , Constants.HtmlPrefix + "." + Constants.AdditionalPrice2 + Constants.LabelSuffix};
-            return (tags);
+
+            return tags;
         }
 
-        public Object GetCustomHTMLParamsForTag(String TagName)
-        {
-            return (null);
-        }
+        public object GetCustomHTMLParamsForTag(string TagName) => null;
 
-        public Boolean FilterFieldMatch(String FieldFilterToken, Int32 ComparisonTypeIndex, Object ComparisonValue, IDVDInfo TestDVD)
-        {
-            return (false);
-        }
+        public bool FilterFieldMatch(string FieldFilterToken, int ComparisonTypeIndex, object ComparisonValue, IDVDInfo TestDVD) => false;
 
         #endregion
 
@@ -704,19 +684,22 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         private void LoadCurrencies()
         {
-            List<CurrencyInfo> list;
-
             DefaultCurrency = new CurrencyInfo(Settings.DefaultValues.DefaultCurrency);
-            list = new List<CurrencyInfo>(CurrencyInfo.MaxID + 1);
-            for (UInt16 i = CurrencyInfo.MinID; i <= CurrencyInfo.MaxID; i++)
+
+            var currencies = new List<CurrencyInfo>(CurrencyInfo.MaxID + 1);
+
+            for (ushort currencyId = CurrencyInfo.MinID; currencyId <= CurrencyInfo.MaxID; currencyId++)
             {
-                list.Add(new CurrencyInfo(i));
+                currencies.Add(new CurrencyInfo(currencyId));
             }
-            list.Sort();
-            Currencies = new Dictionary<String, CurrencyInfo>();
-            foreach (CurrencyInfo ci in list)
+
+            currencies.Sort();
+
+            Currencies = new Dictionary<string, CurrencyInfo>();
+
+            foreach (var currency in currencies)
             {
-                Currencies.Add(ci.Name, ci);
+                Currencies.Add(currency.Name, currency);
             }
         }
 
@@ -728,17 +711,14 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
             try
             {
-
                 #region Schema
 
-                using (Stream stream
-                    = typeof(EnhancedPurchaseInfo).Assembly.GetManifestResourceStream("DoenaSoft.DVDProfiler.EnhancedPurchaseInfo.EnhancedPurchaseInfo.xsd"))
+                using (var stream = typeof(EnhancedPurchaseInfo).Assembly.GetManifestResourceStream("DoenaSoft.DVDProfiler.EnhancedPurchaseInfo.EnhancedPurchaseInfo.xsd"))
                 {
-                    using (StreamReader sr = new StreamReader(stream))
+                    using (var sr = new StreamReader(stream))
                     {
-                        String xsd;
+                        var xsd = sr.ReadToEnd();
 
-                        xsd = sr.ReadToEnd();
                         Api.SetGlobalSetting(Constants.FieldDomain, "EnhancedPurchaseInfoSchema", xsd, Constants.ReadKey, InternalConstants.WriteKey);
                     }
                 }
@@ -777,17 +757,19 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             {
                 try
                 {
-                    MessageBox.Show(String.Format(MessageBoxTexts.CriticalError, ex.Message, ErrorFile)
+                    MessageBox.Show(string.Format(MessageBoxTexts.CriticalError, ex.Message, _errorFile)
                         , MessageBoxTexts.CriticalErrorHeader, MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                    if (File.Exists(ErrorFile))
+
+                    if (File.Exists(_errorFile))
                     {
-                        File.Delete(ErrorFile);
+                        File.Delete(_errorFile);
                     }
+
                     LogException(ex);
                 }
                 catch (Exception inEx)
                 {
-                    MessageBox.Show(String.Format(MessageBoxTexts.FileCantBeWritten, ErrorFile, inEx.Message)
+                    MessageBox.Show(string.Format(MessageBoxTexts.FileCantBeWritten, _errorFile, inEx.Message)
                         , MessageBoxTexts.ErrorHeader, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
@@ -795,36 +777,30 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         private void PrepareCouponTypes()
         {
-            Object[] ids;
-
             //Debugger.Launch();
 
             CouponTypes.Clear();
 
-            ids = (Object[])(Api.GetAllProfileIDs());
-            if ((ids != null) && (ids.Length > 0))
+            var ids = (object[])Api.GetAllProfileIDs();
+
+            if (ids != null && ids.Length > 0)
             {
-                for (Int32 i = 0; i < ids.Length; i++)
+                for (var idIndex = 0; idIndex < ids.Length; idIndex++)
                 {
-                    String id;
-                    IDVDInfo profile;
-                    TextManager textManager;
-                    String couponType;
+                    var id = ids[idIndex].ToString();
 
-                    id = ids[i].ToString();
+                    var profile = Api.CreateDVD();
 
-                    profile = Api.CreateDVD();
                     profile.SetProfileID(id);
 
-                    textManager = new TextManager(profile);
+                    var textManager = new TextManager(profile);
 
-                    if (textManager.GetCouponType(out couponType))
+                    if (textManager.GetCouponType(out var couponType))
                     {
-                        UInt16 count;
-
-                        if (CouponTypes.TryGetValue(couponType, out count))
+                        if (CouponTypes.TryGetValue(couponType, out var count))
                         {
                             count++;
+
                             CouponTypes[couponType] = count;
                         }
                         else
@@ -836,38 +812,27 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        private void RegisterCustomPriceField(String fieldName)
+        private void RegisterCustomPriceField(string fieldName)
         {
             RegisterCustomField(fieldName, PluginConstants.FIELD_TYPE_CURRENCY);
             RegisterCustomField(fieldName + Constants.CurrencySuffix, PluginConstants.FIELD_TYPE_INT);
         }
 
-        private void RegisterCustomField(String fieldName
-            , Int32 fieldType)
+        private void RegisterCustomField(string fieldName, int fieldType)
         {
             Api.CreateCustomDVDField(Constants.FieldDomain, fieldName, fieldType, Constants.ReadKey, InternalConstants.WriteKey);
             Api.SetCustomDVDFieldStorage(Constants.FieldDomain, fieldName, InternalConstants.WriteKey, true, false);
         }
 
-        private void RegisterCustomTextField(String fieldName)
-        {
-            RegisterCustomField(fieldName, PluginConstants.FIELD_TYPE_STRING);
-        }
+        private void RegisterCustomTextField(string fieldName) => RegisterCustomField(fieldName, PluginConstants.FIELD_TYPE_STRING);
 
-        private void RegisterCustomDateField(String fieldName)
-        {
-            RegisterCustomField(fieldName, PluginConstants.FIELD_TYPE_DATETIME);
-        }
+        private void RegisterCustomDateField(string fieldName) => RegisterCustomField(fieldName, PluginConstants.FIELD_TYPE_DATETIME);
 
         #endregion
 
         private void SetIsRemoteAccess()
         {
-            String name;
-            Boolean isRemote;
-            String localPath;
-
-            Api.GetCurrentDatabaseInformation(out name, out isRemote, out localPath);
+            Api.GetCurrentDatabaseInformation(out var name, out var isRemote, out var localPath);
 
             //System.Diagnostics.Debugger.Launch();
 
@@ -876,21 +841,10 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region Export to XML
 
-        private void AppendDates(StringBuilder sb
-            , Boolean hasOD
-            , DateTime od
-            , Boolean hasSD
-            , DateTime sd
-            , Boolean hasDD
-            , DateTime dd
-            , Boolean hasAD1
-            , DateTime ad1
-            , Boolean hasAD2
-            , DateTime ad2)
+        private void AppendDates(StringBuilder sb, bool hasOD, DateTime od, bool hasSD, DateTime sd, bool hasDD, DateTime dd, bool hasAD1, DateTime ad1, bool hasAD2, DateTime ad2)
         {
-            DefaultValues dv;
+            var dv = Settings.DefaultValues;
 
-            dv = Settings.DefaultValues;
             if (hasOD)
             {
                 AddDateTag(sb, Constants.OrderDate, dv.OrderDateLabel, od);
@@ -913,14 +867,13 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        private void AddDateTag(StringBuilder sb
-            , String tagName
-            , String displayName
-            , DateTime od)
+        private void AddDateTag(StringBuilder sb, string tagName, string displayName, DateTime od)
         {
             sb.Append("<");
             sb.Append(tagName);
+
             AddDisplayNameAttribute(sb, displayName);
+
             sb.Append(">");
             sb.Append(od.Year.ToString("D4"));
             sb.Append("-");
@@ -932,15 +885,14 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             sb.Append(">");
         }
 
-        private static void AddDisplayNameAttribute(StringBuilder sb
-            , String displayName)
+        private static void AddDisplayNameAttribute(StringBuilder sb, string displayName)
         {
-            String base64;
+            displayName = XmlConvertHelper.GetWindows1252Text(displayName, out var base64);
 
-            displayName = XmlConvertHelper.GetWindows1252Text(displayName, out base64);
             sb.Append(" DisplayName=\"");
             sb.Append(displayName);
             sb.Append("\"");
+
             if (base64 != null)
             {
                 sb.Append(" Base64DisplayName=\"");
@@ -949,104 +901,89 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        private static bool HasPrice(Boolean hasOP
-            , Boolean hasSC
-            , Boolean hasCF
-            , Boolean hasCCF
-            , Boolean hasDiscount
-            , Boolean hasCT
-            , Boolean hasCC
-            , Boolean hasAP1
-            , Boolean hasAP2)
-        {
-            return hasOP || hasSC || hasCF || hasCCF || hasDiscount || hasCT || hasCC || hasAP1 || hasAP2;
-        }
+        //private static bool HasPrice(bool hasOP, bool hasSC, bool hasCF, bool hasCCF, bool hasDiscount, bool hasCT, bool hasCC, bool hasAP1, bool hasAP2)
+        //{
+        //    return hasOP || hasSC || hasCF || hasCCF || hasDiscount || hasCT || hasCC || hasAP1 || hasAP2;
+        //}
 
-        private void AppendPrices(StringBuilder sb
-            , Boolean hasOP
-            , Decimal op
-            , Boolean hasSC
-            , Decimal sc
-            , Boolean hasCCC
-            , Decimal ccc
-            , Boolean hasCCF
-            , Decimal ccf
-            , Boolean hasDiscount
-            , Decimal discount
-            , Boolean hasCF
-            , Decimal cf
-            , Boolean hasCT
-            , String ct
-            , Boolean hasCC
-            , String cc
-            , Boolean hasAP1
-            , Decimal ap1
-            , Boolean hasAP2
-            , Decimal ap2
-            , PriceManager priceManager)
+        private void AppendPrices(StringBuilder sb, bool hasOP, decimal op, bool hasSC, decimal sc, bool hasCCC, decimal ccc, bool hasCCF, decimal ccf, bool hasDiscount, decimal discount, bool hasCF, decimal cf, bool hasCT, string ct, bool hasCC, string cc, bool hasAP1, decimal ap1, bool hasAP2, decimal ap2, PriceManager priceManager)
         {
-            CurrencyInfo ci;
-            DefaultValues dv;
+            var dv = Settings.DefaultValues;
 
-            dv = Settings.DefaultValues;
             if (hasOP)
             {
-                priceManager.GetOriginalPriceCurrency(out ci);
+                priceManager.GetOriginalPriceCurrency(out var ci);
+
                 AddPriceTag(sb, Constants.OriginalPrice, dv.OriginalPriceLabel, op, ci);
             }
+
             if (hasSC)
             {
-                priceManager.GetShippingCostCurrency(out ci);
+                priceManager.GetShippingCostCurrency(out var ci);
+
                 AddPriceTag(sb, Constants.ShippingCost, dv.ShippingCostLabel, sc, ci);
             }
+
             if (hasCCC)
             {
-                priceManager.GetCreditCardChargeCurrency(out ci);
+                priceManager.GetCreditCardChargeCurrency(out var ci);
+
                 AddPriceTag(sb, Constants.CreditCardCharge, dv.CreditCardChargeLabel, ccc, ci);
             }
+
             if (hasCCF)
             {
-                priceManager.GetCreditCardFeesCurrency(out ci);
+                priceManager.GetCreditCardFeesCurrency(out var ci);
+
                 AddPriceTag(sb, Constants.CreditCardFees, dv.CreditCardFeesLabel, ccf, ci);
             }
+
             if (hasDiscount)
             {
-                priceManager.GetDiscountCurrency(out ci);
+                priceManager.GetDiscountCurrency(out var ci);
+
                 AddPriceTag(sb, Constants.Discount, dv.DiscountLabel, discount, ci);
             }
+
             if (hasCF)
             {
-                priceManager.GetCustomsFeesCurrency(out ci);
+                priceManager.GetCustomsFeesCurrency(out var ci);
+
                 AddPriceTag(sb, Constants.CustomsFees, dv.CustomsFeesLabel, cf, ci);
             }
+
             if (hasCT)
             {
                 AddTextTag(sb, Constants.CouponType, dv.CouponTypeLabel, ct);
             }
+
             if (hasCC)
             {
                 AddTextTag(sb, Constants.CouponCode, dv.CouponCodeLabel, cc);
             }
+
             if (hasAP1)
             {
-                priceManager.GetAdditionalPrice1Currency(out ci);
+                priceManager.GetAdditionalPrice1Currency(out var ci);
+
                 AddPriceTag(sb, Constants.AdditionalPrice1, dv.AdditionalPrice1Label, ap1, ci);
             }
+
             if (hasAP2)
             {
-                priceManager.GetAdditionalPrice2Currency(out ci);
+                priceManager.GetAdditionalPrice2Currency(out var ci);
+
                 AddPriceTag(sb, Constants.AdditionalPrice2, dv.AdditionalPrice2Label, ap2, ci);
             }
         }
 
-        private static void AddTextTag(StringBuilder sb
-            , String tagName
-            , String displayName
-            , String text)
+        private static void AddTextTag(StringBuilder sb, string tagName, string displayName, string text)
         {
             sb.Append("<");
             sb.Append(tagName);
+
             AddDisplayNameAttribute(sb, displayName);
+
             sb.Append(">");
             sb.Append(text);
             sb.Append("</");
@@ -1054,11 +991,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             sb.Append(">");
         }
 
-        private static void AddPriceTag(StringBuilder sb
-            , String tagName
-            , String displayName
-            , Decimal price
-            , CurrencyInfo ci)
+        private static void AddPriceTag(StringBuilder sb, string tagName, string displayName, decimal price, CurrencyInfo ci)
         {
             sb.Append("<");
             sb.Append(tagName);
@@ -1069,7 +1002,9 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             sb.Append("\" FormattedValue=\"");
             sb.Append(ci.GetFormattedValue(price));
             sb.Append("\"");
+
             AddDisplayNameAttribute(sb, displayName);
+
             sb.Append(">");
             sb.Append(price.ToString("F2", CultureInfo.GetCultureInfo("en-US")));
             sb.Append("</");
@@ -1081,38 +1016,33 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region Export to HTML
 
-        private String GetFormattedValue(DateManager.GetDateDelegate getDate)
+        private string GetFormattedValue(DateManager.GetDateDelegate getDate)
         {
-            String dateString;
-            DateTime date;
+            var dateString = string.Empty;
 
-            dateString = String.Empty;
-            if (getDate(out date))
+            if (getDate(out var date))
             {
-                String dateFormat;
+                var dateFormat = Application.CurrentCulture.DateTimeFormat.ShortDatePattern;
 
-                dateFormat = Application.CurrentCulture.DateTimeFormat.ShortDatePattern;
                 dateString = date.ToString(dateFormat);
             }
-            return (dateString);
+
+            return dateString;
         }
 
-        private String GetFormattedValue(PriceManager.GetPriceDelegate getPrice
-            , PriceManager.GetCurrencyDelegate getCurrency)
+        private string GetFormattedValue(PriceManager.GetPriceDelegate getPrice, PriceManager.GetCurrencyDelegate getCurrency)
         {
-            Decimal price;
-            String priceString;
+            var priceString = string.Empty;
 
-            priceString = String.Empty;
-            if (getPrice(out price))
+            if (getPrice(out var price))
             {
-                CurrencyInfo ci;
+                getCurrency(out var ci);
 
-                getCurrency(out ci);
                 priceString = ci.GetFormattedValue(price);
                 priceString = HtmlEncode(priceString);
             }
-            return (priceString);
+
+            return priceString;
         }
 
         #endregion
@@ -1140,114 +1070,113 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                 Settings.DefaultValues = new DefaultValues();
             }
 
-            return (Settings.DefaultValues.UiLanguage);
+            return Settings.DefaultValues.UiLanguage;
         }
 
-        public static String HtmlEncode(String decoded)
+        public static string HtmlEncode(string decoded)
         {
-            String encoded;
+            var encoded = string.Join("", decoded.ToCharArray().Select(c =>
+            {
+                var number = (int)c;
 
-            encoded = String.Join("", decoded.ToCharArray().Select(c =>
-                {
-                    Int32 number;
-                    String newChar;
+                var newChar = number > 127
+                    ? "&#" + number.ToString() + ";"
+                    : HttpUtility.HtmlEncode(c.ToString());
 
-                    number = (Int32)c;
-                    if (number > 127)
-                    {
-                        newChar = "&#" + number.ToString() + ";";
-                    }
-                    else
-                    {
-                        newChar = HttpUtility.HtmlEncode(c.ToString());
-                    }
-                    return (newChar);
-                }).ToArray());
-            return (encoded);
+                return newChar;
+            }).ToArray());
+
+            return encoded;
         }
 
-        private void HandleMenuClick(Int32 MenuEventID)
+        private void HandleMenuClick(int MenuEventID)
         {
             try
             {
                 switch (MenuEventID)
                 {
-                    case (DvdMenuId):
+                    case DvdMenuId:
                         {
                             OpenEditor(true);
+
                             break;
                         }
-                    case (PersonalizeScreenId):
+                    case PersonalizeScreenId:
                         {
                             OpenEditor(false);
+
                             break;
                         }
-                    case (CollectionExportToXmlMenuId):
+                    case CollectionExportToXmlMenuId:
                         {
-                            XmlManager xmlManager;
+                            var xmlManager = new XmlManager(this);
 
-                            xmlManager = new XmlManager(this);
                             xmlManager.Export(true);
+
                             break;
                         }
-                    case (CollectionImportMenuId):
+                    case CollectionImportMenuId:
                         {
-                            XmlManager xmlManager;
+                            var xmlManager = new XmlManager(this);
 
-                            xmlManager = new XmlManager(this);
                             xmlManager.Import(true);
+
                             break;
                         }
-                    case (CollectionExportToCsvMenuId):
+                    case CollectionExportToCsvMenuId:
                         {
-                            CsvManager csvManager;
+                            var csvManager = new CsvManager(this);
 
-                            csvManager = new CsvManager(this);
                             csvManager.Export(true);
+
                             break;
                         }
-                    case (CollectionFlaggedExportToXmlMenuId):
+                    case CollectionFlaggedExportToXmlMenuId:
                         {
-                            XmlManager xmlManager;
+                            var xmlManager = new XmlManager(this);
 
-                            xmlManager = new XmlManager(this);
                             xmlManager.Export(false);
+
                             break;
                         }
-                    case (CollectionFlaggedImportMenuId):
+                    case CollectionFlaggedImportMenuId:
                         {
-                            XmlManager xmlManager;
+                            var xmlManager = new XmlManager(this);
 
-                            xmlManager = new XmlManager(this);
                             xmlManager.Import(false);
-                            break;
-                        }
-                    case (CollectionFlaggedExportToCsvMenuId):
-                        {
-                            CsvManager csvManager;
 
-                            csvManager = new CsvManager(this);
-                            csvManager.Export(false);
                             break;
                         }
-                    case (ToolsOptionsMenuId):
+                    case CollectionFlaggedExportToCsvMenuId:
+                        {
+                            var csvManager = new CsvManager(this);
+
+                            csvManager.Export(false);
+
+                            break;
+                        }
+                    case ToolsOptionsMenuId:
                         {
                             OpenSettings();
+
                             break;
                         }
-                    case (ToolsExportOptionsMenuId):
+                    case ToolsExportOptionsMenuId:
                         {
                             ExportOptions();
+
                             break;
                         }
-                    case (ToolsImportOptionsMenuId):
+                    case ToolsImportOptionsMenuId:
                         {
                             ImportOptions();
+
                             break;
                         }
-                    case (ToolsOpenCalculatorMenuId):
+                    case ToolsOpenCalculatorMenuId:
                         {
                             OnOpenCalculator(this, EventArgs.Empty);
+
                             break;
                         }
                 }
@@ -1256,17 +1185,19 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             {
                 try
                 {
-                    MessageBox.Show(String.Format(MessageBoxTexts.CriticalError, ex.Message, ErrorFile)
+                    MessageBox.Show(string.Format(MessageBoxTexts.CriticalError, ex.Message, _errorFile)
                         , MessageBoxTexts.CriticalErrorHeader, MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                    if (File.Exists(ErrorFile))
+
+                    if (File.Exists(_errorFile))
                     {
-                        File.Delete(ErrorFile);
+                        File.Delete(_errorFile);
                     }
+
                     LogException(ex);
                 }
                 catch (Exception inEx)
                 {
-                    MessageBox.Show(String.Format(MessageBoxTexts.FileCantBeWritten, ErrorFile, inEx.Message), MessageBoxTexts.ErrorHeader
+                    MessageBox.Show(string.Format(MessageBoxTexts.FileCantBeWritten, _errorFile, inEx.Message), MessageBoxTexts.ErrorHeader
                         , MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
@@ -1274,31 +1205,38 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         internal void ImportOptions()
         {
-            using (OpenFileDialog ofd = new OpenFileDialog())
+            using (var ofd = new OpenFileDialog()
             {
-                ofd.CheckFileExists = true;
-                ofd.Filter = "XML files|*.xml";
-                ofd.Multiselect = false;
-                ofd.RestoreDirectory = true;
-                ofd.Title = Texts.LoadXmlFile;
+                CheckFileExists = true,
+                Filter = "XML files|*.xml",
+                Multiselect = false,
+                RestoreDirectory = true,
+                Title = Texts.LoadXmlFile,
+            })
+            {
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    DefaultValues dv = null;
-
+                    DefaultValues dv;
                     try
                     {
                         dv = Serializer<DefaultValues>.Deserialize(ofd.FileName);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(String.Format(MessageBoxTexts.FileCantBeRead, ofd.FileName, ex.Message)
+                        dv = null;
+
+                        MessageBox.Show(string.Format(MessageBoxTexts.FileCantBeRead, ofd.FileName, ex.Message)
                            , MessageBoxTexts.ErrorHeader, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
+
                     if (dv != null)
                     {
                         Settings.DefaultValues = dv;
+
                         Texts.Culture = dv.UiLanguage;
+
                         MessageBoxTexts.Culture = dv.UiLanguage;
+
                         MessageBox.Show(MessageBoxTexts.Done, MessageBoxTexts.InformationHeader, MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
@@ -1307,18 +1245,20 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         internal void ExportOptions()
         {
-            using (SaveFileDialog sfd = new SaveFileDialog())
+            using (var sfd = new SaveFileDialog()
             {
-                sfd.AddExtension = true;
-                sfd.DefaultExt = ".xml";
-                sfd.Filter = "XML files|*.xml";
-                sfd.OverwritePrompt = true;
-                sfd.RestoreDirectory = true;
-                sfd.Title = Texts.SaveXmlFile;
-                sfd.FileName = "EnhancedPurchaseInfoOptions.xml";
+                AddExtension = true,
+                DefaultExt = ".xml",
+                Filter = "XML files|*.xml",
+                OverwritePrompt = true,
+                RestoreDirectory = true,
+                Title = Texts.SaveXmlFile,
+                FileName = "EnhancedPurchaseInfoOptions.xml",
+            })
+            {
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    DefaultValues dv = Settings.DefaultValues;
+                    var dv = Settings.DefaultValues;
 
                     try
                     {
@@ -1328,7 +1268,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(String.Format(MessageBoxTexts.FileCantBeWritten, sfd.FileName, ex.Message)
+                        MessageBox.Show(string.Format(MessageBoxTexts.FileCantBeWritten, sfd.FileName, ex.Message)
                             , MessageBoxTexts.ErrorHeader, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
@@ -1337,56 +1277,63 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         private void OpenSettings()
         {
-            using (SettingsForm form = new SettingsForm(this))
+            using (var form = new SettingsForm(this))
             {
                 form.ShowDialog();
             }
         }
 
-        private void OpenEditor(Boolean fullEdit)
+        private void OpenEditor(bool fullEdit)
         {
-            IDVDInfo profile;
-            String profileId;
+            var profileId = _currentProfileId;
 
-            profileId = CurrentProfileId;
-            if (String.IsNullOrEmpty(profileId))
+            if (string.IsNullOrEmpty(profileId))
             {
-                profile = Api.GetDisplayedDVD();
+                var profile = Api.GetDisplayedDVD();
+
                 profileId = profile.GetProfileID();
             }
-            if (String.IsNullOrEmpty(profileId) == false)
+
+            if (string.IsNullOrEmpty(profileId) == false)
             {
-                Api.DVDByProfileID(out profile, profileId, PluginConstants.DATASEC_AllSections, -1);
+                Api.DVDByProfileID(out var profile, profileId, PluginConstants.DATASEC_AllSections, -1);
+
                 if (profile.GetProfileID() == null)
                 {
                     profile = Api.CreateDVD();
+
                     profile.SetProfileID(profileId);
                 }
-                using (MainForm form = new MainForm(this, profile, fullEdit))
+
+                using (var form = new MainForm(this, profile, fullEdit))
                 {
                     form.OpenCalculator += OnOpenCalculator;
+
                     form.ShowDialog();
+
                     form.OpenCalculator -= OnOpenCalculator;
                 }
             }
         }
 
-        void OnOpenCalculator(Object sender, EventArgs e)
+        void OnOpenCalculator(object sender, EventArgs e)
         {
-            FileInfo fi;
-            String file;
-            String dir;
-            Process p;
-            String args;
+            var file = GetType().Assembly.Location;
 
-            file = GetType().Assembly.Location;
-            fi = new FileInfo(file);
-            dir = fi.DirectoryName;
+            var fi = new FileInfo(file);
+
+            var dir = fi.DirectoryName;
+
             file = "PurchasePriceSplitter.exe";
             file = Path.Combine(dir, file);
-            args = "/lang=" + Settings.DefaultValues.UiLanguage.Name;
-            p = new Process();
-            p.StartInfo = new ProcessStartInfo(file, args);
+
+            var args = "/lang=" + Settings.DefaultValues.UiLanguage.Name;
+
+            var p = new Process()
+            {
+                StartInfo = new ProcessStartInfo(file, args),
+            };
+
             p.Start();
         }
 
@@ -1394,27 +1341,27 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
         {
             ex = WrapCOMException(ex);
 
-            ExceptionXml exceptionXml = new ExceptionXml(ex);
+            var exceptionXml = new ExceptionXml(ex);
 
-            Serializer<ExceptionXml>.Serialize(ErrorFile, exceptionXml);
+            Serializer<ExceptionXml>.Serialize(_errorFile, exceptionXml);
         }
 
         private Exception WrapCOMException(Exception ex)
         {
-            Exception returnEx = ex;
+            var returnEx = ex;
 
-            COMException comEx = ex as COMException;
+            var comEx = ex as COMException;
 
             if (comEx != null)
             {
-                String lastApiError = Api.GetLastError();
+                string lastApiError = Api.GetLastError();
 
-                EnhancedCOMException newEx = new EnhancedCOMException(lastApiError, comEx);
+                var newEx = new EnhancedCOMException(lastApiError, comEx);
 
                 returnEx = newEx;
             }
 
-            return (returnEx);
+            return returnEx;
         }
 
         #region Plugin Registering
@@ -1428,23 +1375,25 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
         [ComRegisterFunction()]
         public static void RegisterServer(Type t)
         {
-            CategoryRegistrar.ICatRegister cr = (CategoryRegistrar.ICatRegister)new StdComponentCategoriesMgr();
-            Guid clsidThis = new Guid(ClassGuid.ClassID);
-            Guid catid = new Guid("833F4274-5632-41DB-8FC5-BF3041CEA3F1");
+            var cr = (CategoryRegistrar.ICatRegister)new StdComponentCategoriesMgr();
 
-            cr.RegisterClassImplCategories(ref clsidThis, 1,
-                new Guid[] { catid });
+            var clsidThis = new Guid(ClassGuid.ClassID);
+
+            var catid = new Guid("833F4274-5632-41DB-8FC5-BF3041CEA3F1");
+
+            cr.RegisterClassImplCategories(ref clsidThis, 1, new[] { catid });
         }
 
         [ComUnregisterFunction()]
         public static void UnregisterServer(Type t)
         {
-            CategoryRegistrar.ICatRegister cr = (CategoryRegistrar.ICatRegister)new StdComponentCategoriesMgr();
-            Guid clsidThis = new Guid(ClassGuid.ClassID);
-            Guid catid = new Guid("833F4274-5632-41DB-8FC5-BF3041CEA3F1");
+            var cr = (CategoryRegistrar.ICatRegister)new StdComponentCategoriesMgr();
 
-            cr.UnRegisterClassImplCategories(ref clsidThis, 1,
-                new Guid[] { catid });
+            var clsidThis = new Guid(ClassGuid.ClassID);
+
+            var catid = new Guid("833F4274-5632-41DB-8FC5-BF3041CEA3F1");
+
+            cr.UnRegisterClassImplCategories(ref clsidThis, 1, new[] { catid });
         }
 
         #endregion

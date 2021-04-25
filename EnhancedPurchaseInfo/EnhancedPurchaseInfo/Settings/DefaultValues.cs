@@ -19,39 +19,39 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region Prices
 
-        public String OriginalPriceLabel = Texts.AdditionalPrice1;
+        public string OriginalPriceLabel = Texts.AdditionalPrice1;
 
-        public String ShippingCostLabel = Texts.ShippingCost;
+        public string ShippingCostLabel = Texts.ShippingCost;
 
-        public String CreditCardChargeLabel = Texts.CreditCardCharge;
+        public string CreditCardChargeLabel = Texts.CreditCardCharge;
 
-        public String CreditCardFeesLabel = Texts.CreditCardFees;
+        public string CreditCardFeesLabel = Texts.CreditCardFees;
 
-        public String DiscountLabel = Texts.Discount;
+        public string DiscountLabel = Texts.Discount;
 
-        public String CustomsFeesLabel = Texts.CustomsFees;
+        public string CustomsFeesLabel = Texts.CustomsFees;
 
-        public String CouponTypeLabel = Texts.CouponType;
+        public string CouponTypeLabel = Texts.CouponType;
 
-        public String CouponCodeLabel = Texts.CouponCode;
+        public string CouponCodeLabel = Texts.CouponCode;
 
-        public String AdditionalPrice1Label = Texts.AdditionalPrice1;
+        public string AdditionalPrice1Label = Texts.AdditionalPrice1;
 
-        public String AdditionalPrice2Label = Texts.AdditionalPrice2;
+        public string AdditionalPrice2Label = Texts.AdditionalPrice2;
 
         #endregion
 
         #region Dates
 
-        public String OrderDateLabel = Texts.OrderDate;
+        public string OrderDateLabel = Texts.OrderDate;
 
-        public String ShippingDateLabel = Texts.ShippingDate;
+        public string ShippingDateLabel = Texts.ShippingDate;
 
-        public String DeliveryDateLabel = Texts.DeliveryDate;
+        public string DeliveryDateLabel = Texts.DeliveryDate;
 
-        public String AdditionalDate1Label = Texts.AdditionalDate1;
+        public string AdditionalDate1Label = Texts.AdditionalDate1;
 
-        public String AdditionalDate2Label = Texts.AdditionalDate2;
+        public string AdditionalDate2Label = Texts.AdditionalDate2;
 
         #endregion
 
@@ -59,15 +59,15 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region Basics
 
-        public Boolean Id = true;
+        public bool Id = true;
 
-        public Boolean Title = true;
+        public bool Title = true;
 
-        public Boolean Edition = true;
+        public bool Edition = true;
 
-        public Boolean SortTitle = true;
+        public bool SortTitle = true;
 
-        public Boolean PurchasePlace = true;
+        public bool PurchasePlace = true;
 
         #endregion
 
@@ -75,33 +75,33 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region Invelos Data
 
-        public Boolean PurchasePrice = true;
+        public bool PurchasePrice = true;
 
-        public Boolean SRP = true;
+        public bool SRP = true;
 
         #endregion
 
         #region Plugin Data
 
-        public Boolean OriginalPrice = true;
+        public bool OriginalPrice = true;
 
-        public Boolean ShippingCost = true;
+        public bool ShippingCost = true;
 
-        public Boolean CreditCardCharge = true;
+        public bool CreditCardCharge = true;
 
-        public Boolean CreditCardFees = true;
+        public bool CreditCardFees = true;
 
-        public Boolean Discount = true;
+        public bool Discount = true;
 
-        public Boolean CustomsFees = false;
+        public bool CustomsFees = false;
 
-        public Boolean CouponType = false;
+        public bool CouponType = false;
 
-        public Boolean CouponCode = false;
+        public bool CouponCode = false;
 
-        public Boolean AdditionalPrice1 = false;
+        public bool AdditionalPrice1 = false;
 
-        public Boolean AdditionalPrice2 = false;
+        public bool AdditionalPrice2 = false;
 
         #endregion
 
@@ -111,17 +111,17 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region Invelos Data
 
-        public Boolean PurchaseDate = true;
+        public bool PurchaseDate = true;
 
-        public Boolean OrderDate = true;
+        public bool OrderDate = true;
 
-        public Boolean ShippingDate = true;
+        public bool ShippingDate = true;
 
-        public Boolean DeliveryDate = true;
+        public bool DeliveryDate = true;
 
-        public Boolean AdditionalDate1 = false;
+        public bool AdditionalDate1 = false;
 
-        public Boolean AdditionalDate2 = false;
+        public bool AdditionalDate2 = false;
 
         #endregion
 
@@ -129,9 +129,9 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region Misc
 
-        private Int32 m_DefaultCurrency = PluginConstants.CURRENCY_USD;
+        private int m_DefaultCurrency = PluginConstants.CURRENCY_USD;
 
-        public Int32 DefaultCurrency
+        public int DefaultCurrency
         {
             get
             {
@@ -147,7 +147,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        public Int32 UiLcid
+        public int UiLcid
         {
             get
             {
@@ -162,9 +162,9 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
         [XmlIgnore]
         internal CultureInfo UiLanguage;
 
-        public Boolean ExportToCollectionXml = false;
+        public bool ExportToCollectionXml = false;
 
-        public Boolean ShippingCostSplitAbsolute = true;
+        public bool ShippingCostSplitAbsolute = true;
 
         #endregion
 

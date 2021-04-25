@@ -11,11 +11,12 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
     [Serializable]
     public sealed class Settings
     {
-        public String CurrentVersion;
+        public string CurrentVersion;
 
         public DefaultValues DefaultValues;
 
         #region Serialization
+
         private static XmlSerializer s_XmlSerializer;
 
         [XmlIgnore]
@@ -27,40 +28,42 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                 {
                     s_XmlSerializer = new XmlSerializer(typeof(Settings));
                 }
-                return (s_XmlSerializer);
+
+                return s_XmlSerializer;
             }
         }
 
-        public static void Serialize(String fileName, Settings instance)
+        public static void Serialize(string fileName, Settings instance)
         {
-            using (FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-                using (XmlTextWriter xtw = new XmlTextWriter(fs, Encoding.UTF8))
+                using (var xtw = new XmlTextWriter(fs, Encoding.UTF8))
                 {
                     xtw.Formatting = Formatting.Indented;
+
                     XmlSerializer.Serialize(xtw, instance);
                 }
             }
         }
 
-        public void Serialize(String fileName)
+        public void Serialize(string fileName)
         {
             Serialize(fileName, this);
         }
 
-        public static Settings Deserialize(String fileName)
+        public static Settings Deserialize(string fileName)
         {
             using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 using (XmlTextReader xtr = new XmlTextReader(fs))
                 {
-                    Settings instance;
+                    var instance = (Settings)(XmlSerializer.Deserialize(xtr));
 
-                    instance = (Settings)(XmlSerializer.Deserialize(xtr));
-                    return (instance);
+                    return instance;
                 }
             }
         }
+
         #endregion
     }
 }

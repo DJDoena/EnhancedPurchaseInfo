@@ -1,84 +1,76 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Invelos.DVDProfilerPlugin;
 
 namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 {
     internal sealed class PriceManager
     {
-        private const String TextNotSet = null;
+        private const long PriceNotSet = -1;
 
-        private const Int64 PriceNotSet = -1;
+        private const int CurrencyNotSet = -1;
 
-        private const Int32 CurrencyNotSet = -1;
-
-        private readonly IDVDInfo Profile;
+        private readonly IDVDInfo _profile;
 
         public PriceManager(IDVDInfo profile)
         {
-            Profile = profile;
+            _profile = profile;
         }
 
         #region Invelos Data
 
         #region PurchasePrice
 
-        internal Boolean GetPurchasePriceCurrency(out CurrencyInfo ppc)
+        internal bool GetPurchasePriceCurrency(out CurrencyInfo ppc)
         {
-            Int32 id;
+            var id = _profile.GetPurchasePriceCurrency();
 
-            id = Profile.GetPurchasePriceCurrency();
             ppc = new CurrencyInfo(id);
-            return (true);
+
+            return true;
         }
 
-        internal String GetPurchasePriceWithFallback()
+        internal string GetPurchasePriceWithFallback()
         {
-            Int64 priceValue;
-            Decimal price;
-            String priceString;
-
-            priceString = String.Empty;
-            if (Profile.GetPurchasePriceIsEmpty())
+            if (_profile.GetPurchasePriceIsEmpty())
             {
-                return (String.Empty);
+                return string.Empty;
             }
-            priceValue = Profile.GetPurchasePriceValue();
-            price = ((Decimal)priceValue) / Constants.DigitDivider;
-            priceString = GetFormattedPriceString(price);
-            return (priceString);
+
+            var priceValue = _profile.GetPurchasePriceValue();
+
+            var price = priceValue / Constants.DigitDivider;
+
+            var priceString = GetFormattedPriceString(price);
+
+            return priceString;
         }
 
-        internal void SetPurchasePrice(String pp)
+        internal void SetPurchasePrice(string pp)
         {
-            if (String.IsNullOrEmpty(pp))
+            if (string.IsNullOrEmpty(pp))
             {
                 SetPurchasePrice(0, true);
             }
             else
             {
-                Decimal price;
-
-                if (Decimal.TryParse(pp, NumberStyles.Float, CultureInfo.CurrentCulture, out price))
+                if (decimal.TryParse(pp, NumberStyles.Float, CultureInfo.CurrentCulture, out var price))
                 {
-                    Int64 priceValue;
+                    var priceValue = (long)(price * Constants.DigitDivider);
 
-                    priceValue = (Int64)(price * Constants.DigitDivider);
                     SetPurchasePrice(priceValue, false);
                 }
             }
         }
 
-        private void SetPurchasePrice(Int64 priceValue
-            , Boolean priceIsEmpty)
+        private void SetPurchasePrice(long priceValue, bool priceIsEmpty)
         {
             if (priceIsEmpty)
             {
-                Profile.ClearPurchasePrice();
+                _profile.ClearPurchasePrice();
             }
             else
             {
-                Profile.SetPurchasePriceValue(priceValue);
+                _profile.SetPurchasePriceValue(priceValue);
             }
         }
 
@@ -88,61 +80,56 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             {
                 ppc = new CurrencyInfo(PluginConstants.CURRENCY_USD);
             }
-            Profile.SetPurchasePriceCurrency(ppc.Id);
+
+            _profile.SetPurchasePriceCurrency(ppc.Id);
         }
 
         #endregion
 
         #region SRP
 
-        internal Boolean GetSRPCurrency(out CurrencyInfo opc)
+        internal bool GetSRPCurrency(out CurrencyInfo opc)
         {
-            Int32 id;
+            var id = _profile.GetSRPCurrency();
 
-            id = Profile.GetSRPCurrency();
             opc = new CurrencyInfo(id);
-            return (true);
+
+            return true;
         }
 
-        internal String GetSRPWithFallback()
+        internal string GetSRPWithFallback()
         {
-            Int64 priceValue;
-            Decimal price;
-            String priceString;
+            var priceValue = _profile.GetSRPValue();
 
-            priceString = String.Empty;
-            priceValue = Profile.GetSRPValue();
-            price = ((Decimal)priceValue) / Constants.DigitDivider;
-            priceString = GetFormattedPriceString(price);
-            return (priceString);
+            var price = priceValue / Constants.DigitDivider;
+
+            var priceString = GetFormattedPriceString(price);
+
+            return priceString;
         }
 
-        internal void SetSRP(String srp)
+        internal void SetSRP(string srp)
         {
-            Int64 priceValue;
-
-            if (String.IsNullOrEmpty(srp))
+            if (string.IsNullOrEmpty(srp))
             {
-                priceValue = 0;
-                SetSRP(priceValue);
+                SetSRP(0);
             }
             else
             {
-                Decimal price;
-
-                if (Decimal.TryParse(srp, NumberStyles.Float, CultureInfo.CurrentCulture, out price))
+                if (decimal.TryParse(srp, NumberStyles.Float, CultureInfo.CurrentCulture, out var price))
                 {
-                    priceValue = (Int64)(price * Constants.DigitDivider);
+                    var priceValue = (long)(price * Constants.DigitDivider);
+
                     SetSRP(priceValue);
                 }
             }
         }
 
-        private void SetSRP(Int64 priceValue)
+        private void SetSRP(long priceValue)
         {
-            if (Profile.GetSRPValue() != priceValue)
+            if (_profile.GetSRPValue() != priceValue)
             {
-                Profile.SetSRPValue(priceValue);
+                _profile.SetSRPValue(priceValue);
             }
         }
 
@@ -152,7 +139,8 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             {
                 srpc = new CurrencyInfo(PluginConstants.CURRENCY_USD);
             }
-            Profile.SetSRPCurrency(srpc.Id);
+
+            _profile.SetSRPCurrency(srpc.Id);
         }
 
         #endregion
@@ -163,233 +151,113 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region OriginalPrice
 
-        internal String GetOriginalPriceWithFallback()
-        {
-            return (GetPriceWithFallback(GetOriginalPrice));
-        }
+        internal string GetOriginalPriceWithFallback() => GetPriceWithFallback(GetOriginalPrice);
 
-        internal Boolean GetOriginalPrice(out Decimal op)
-        {
-            return (GetPriceFromField(Constants.OriginalPrice, out op));
-        }
+        internal bool GetOriginalPrice(out decimal op) => GetPriceFromField(Constants.OriginalPrice, out op);
 
-        internal void SetOriginalPrice(String op)
-        {
-            SetPrice(Constants.OriginalPrice, op);
-        }
+        internal void SetOriginalPrice(string op) => SetPrice(Constants.OriginalPrice, op);
 
-        internal Boolean GetOriginalPriceCurrency(out CurrencyInfo opc)
-        {
-            return (GetCurrency(Constants.OriginalPrice, out opc));
-        }
+        internal bool GetOriginalPriceCurrency(out CurrencyInfo opc) => GetCurrency(Constants.OriginalPrice, out opc);
 
-        internal void SetOriginalPriceCurrency(CurrencyInfo opc)
-        {
-            SetCurrency(Constants.OriginalPrice, opc);
-        }
+        internal void SetOriginalPriceCurrency(CurrencyInfo opc) => SetCurrency(Constants.OriginalPrice, opc);
 
         #endregion
 
         #region ShippingCost
 
-        internal String GetShippingCostWithFallback()
-        {
-            return (GetPriceWithFallback(GetShippingCost));
-        }
+        internal string GetShippingCostWithFallback() => GetPriceWithFallback(GetShippingCost);
 
-        internal Boolean GetShippingCost(out Decimal sc)
-        {
-            return (GetPriceFromField(Constants.ShippingCost, out sc));
-        }
+        internal bool GetShippingCost(out decimal sc) => GetPriceFromField(Constants.ShippingCost, out sc);
 
-        internal void SetShippingCost(String sc)
-        {
-            SetPrice(Constants.ShippingCost, sc);
-        }
+        internal void SetShippingCost(string sc) => SetPrice(Constants.ShippingCost, sc);
 
-        internal Boolean GetShippingCostCurrency(out CurrencyInfo scc)
-        {
-            return (GetCurrency(Constants.ShippingCost, out scc));
-        }
+        internal bool GetShippingCostCurrency(out CurrencyInfo scc) => GetCurrency(Constants.ShippingCost, out scc);
 
-        internal void SetShippingCostCurrency(CurrencyInfo scc)
-        {
-            SetCurrency(Constants.ShippingCost, scc);
-        }
+        internal void SetShippingCostCurrency(CurrencyInfo scc) => SetCurrency(Constants.ShippingCost, scc);
 
         #endregion
 
         #region CreditCardCharge
 
-        internal String GetCreditCardChargeWithFallback()
-        {
-            return (GetPriceWithFallback(GetCreditCardCharge));
-        }
+        internal string GetCreditCardChargeWithFallback() => GetPriceWithFallback(GetCreditCardCharge);
 
-        internal Boolean GetCreditCardCharge(out Decimal ccc)
-        {
-            return (GetPriceFromField(Constants.CreditCardCharge, out ccc));
-        }
+        internal bool GetCreditCardCharge(out decimal ccc) => GetPriceFromField(Constants.CreditCardCharge, out ccc);
 
-        internal void SetCreditCardCharge(String ccc)
-        {
-            SetPrice(Constants.CreditCardCharge, ccc);
-        }
+        internal void SetCreditCardCharge(string ccc) => SetPrice(Constants.CreditCardCharge, ccc);
 
-        internal Boolean GetCreditCardChargeCurrency(out CurrencyInfo cccc)
-        {
-            return (GetCurrency(Constants.CreditCardCharge, out cccc));
-        }
+        internal bool GetCreditCardChargeCurrency(out CurrencyInfo cccc) => GetCurrency(Constants.CreditCardCharge, out cccc);
 
-        internal void SetCreditCardChargeCurrency(CurrencyInfo cccc)
-        {
-            SetCurrency(Constants.CreditCardCharge, cccc);
-        }
+        internal void SetCreditCardChargeCurrency(CurrencyInfo cccc) => SetCurrency(Constants.CreditCardCharge, cccc);
 
         #endregion
 
         #region CreditCardFees
 
-        internal String GetCreditCardFeesWithFallback()
-        {
-            return (GetPriceWithFallback(GetCreditCardFees));
-        }
+        internal string GetCreditCardFeesWithFallback() => GetPriceWithFallback(GetCreditCardFees);
 
-        internal Boolean GetCreditCardFees(out Decimal ccf)
-        {
-            return (GetPriceFromField(Constants.CreditCardFees, out ccf));
-        }
+        internal bool GetCreditCardFees(out decimal ccf) => GetPriceFromField(Constants.CreditCardFees, out ccf);
 
-        internal void SetCreditCardFees(String ccf)
-        {
-            SetPrice(Constants.CreditCardFees, ccf);
-        }
+        internal void SetCreditCardFees(string ccf) => SetPrice(Constants.CreditCardFees, ccf);
 
-        internal Boolean GetCreditCardFeesCurrency(out CurrencyInfo ccfc)
-        {
-            return (GetCurrency(Constants.CreditCardFees, out ccfc));
-        }
+        internal bool GetCreditCardFeesCurrency(out CurrencyInfo ccfc) => GetCurrency(Constants.CreditCardFees, out ccfc);
 
-        internal void SetCreditCardFeesCurrency(CurrencyInfo ccfc)
-        {
-            SetCurrency(Constants.CreditCardFees, ccfc);
-        }
+        internal void SetCreditCardFeesCurrency(CurrencyInfo ccfc) => SetCurrency(Constants.CreditCardFees, ccfc);
 
         #endregion
 
         #region Discount
 
-        internal String GetDiscountWithFallback()
-        {
-            return (GetPriceWithFallback(GetDiscount));
-        }
+        internal string GetDiscountWithFallback() => GetPriceWithFallback(GetDiscount);
 
-        internal Boolean GetDiscount(out Decimal discount)
-        {
-            return (GetPriceFromField(Constants.Discount, out discount));
-        }
+        internal bool GetDiscount(out decimal discount) => GetPriceFromField(Constants.Discount, out discount);
 
-        internal void SetDiscount(String discount)
-        {
-            SetPrice(Constants.Discount, discount);
-        }
+        internal void SetDiscount(string discount) => SetPrice(Constants.Discount, discount);
 
-        internal Boolean GetDiscountCurrency(out CurrencyInfo discountC)
-        {
-            return (GetCurrency(Constants.Discount, out discountC));
-        }
+        internal bool GetDiscountCurrency(out CurrencyInfo discountC) => GetCurrency(Constants.Discount, out discountC);
 
-        internal void SetDiscountCurrency(CurrencyInfo discountC)
-        {
-            SetCurrency(Constants.Discount, discountC);
-        }
+        internal void SetDiscountCurrency(CurrencyInfo discountC) => SetCurrency(Constants.Discount, discountC);
 
         #endregion
 
         #region CustomsFees
 
-        internal String GetCustomsFeesWithFallback()
-        {
-            return (GetPriceWithFallback(GetCustomsFees));
-        }
+        internal string GetCustomsFeesWithFallback() => GetPriceWithFallback(GetCustomsFees);
 
-        internal Boolean GetCustomsFees(out Decimal cf)
-        {
-            return (GetPriceFromField(Constants.CustomsFees, out cf));
-        }
+        internal bool GetCustomsFees(out decimal cf) => GetPriceFromField(Constants.CustomsFees, out cf);
 
-        internal void SetCustomsFees(String cf)
-        {
-            SetPrice(Constants.CustomsFees, cf);
-        }
+        internal void SetCustomsFees(string cf) => SetPrice(Constants.CustomsFees, cf);
 
-        internal Boolean GetCustomsFeesCurrency(out CurrencyInfo cfc)
-        {
-            return (GetCurrency(Constants.CustomsFees, out cfc));
-        }
+        internal bool GetCustomsFeesCurrency(out CurrencyInfo cfc) => GetCurrency(Constants.CustomsFees, out cfc);
 
-        internal void SetCustomsFeesCurrency(CurrencyInfo cfc)
-        {
-            SetCurrency(Constants.CustomsFees, cfc);
-        }
+        internal void SetCustomsFeesCurrency(CurrencyInfo cfc) => SetCurrency(Constants.CustomsFees, cfc);
 
         #endregion
 
         #region AdditionalPrice1
 
-        internal String GetAdditionalPrice1WithFallback()
-        {
-            return (GetPriceWithFallback(GetAdditionalPrice1));
-        }
+        internal string GetAdditionalPrice1WithFallback() => GetPriceWithFallback(GetAdditionalPrice1);
 
-        internal Boolean GetAdditionalPrice1(out Decimal ap1)
-        {
-            return (GetPriceFromField(Constants.AdditionalPrice1, out ap1));
-        }
+        internal bool GetAdditionalPrice1(out decimal ap1) => GetPriceFromField(Constants.AdditionalPrice1, out ap1);
 
-        internal void SetAdditionalPrice1(String ap1)
-        {
-            SetPrice(Constants.AdditionalPrice1, ap1);
-        }
+        internal void SetAdditionalPrice1(string ap1) => SetPrice(Constants.AdditionalPrice1, ap1);
 
-        internal Boolean GetAdditionalPrice1Currency(out CurrencyInfo ap1c)
-        {
-            return (GetCurrency(Constants.AdditionalPrice1, out ap1c));
-        }
+        internal bool GetAdditionalPrice1Currency(out CurrencyInfo ap1c) => GetCurrency(Constants.AdditionalPrice1, out ap1c);
 
-        internal void SetAdditionalPrice1Currency(CurrencyInfo ap1c)
-        {
-            SetCurrency(Constants.AdditionalPrice1, ap1c);
-        }
+        internal void SetAdditionalPrice1Currency(CurrencyInfo ap1c) => SetCurrency(Constants.AdditionalPrice1, ap1c);
 
         #endregion
 
         #region AdditionalPrice2
 
-        internal String GetAdditionalPrice2WithFallback()
-        {
-            return (GetPriceWithFallback(GetAdditionalPrice2));
-        }
+        internal string GetAdditionalPrice2WithFallback() => GetPriceWithFallback(GetAdditionalPrice2);
 
-        internal Boolean GetAdditionalPrice2(out Decimal ap2)
-        {
-            return (GetPriceFromField(Constants.AdditionalPrice2, out ap2));
-        }
+        internal bool GetAdditionalPrice2(out decimal ap2) => GetPriceFromField(Constants.AdditionalPrice2, out ap2);
 
-        internal void SetAdditionalPrice2(String ap2)
-        {
-            SetPrice(Constants.AdditionalPrice2, ap2);
-        }
+        internal void SetAdditionalPrice2(string ap2) => SetPrice(Constants.AdditionalPrice2, ap2);
 
-        internal Boolean GetAdditionalPrice2Currency(out CurrencyInfo ap2c)
-        {
-            return (GetCurrency(Constants.AdditionalPrice2, out ap2c));
-        }
+        internal bool GetAdditionalPrice2Currency(out CurrencyInfo ap2c) => GetCurrency(Constants.AdditionalPrice2, out ap2c);
 
-        internal void SetAdditionalPrice2Currency(CurrencyInfo ap2c)
-        {
-            SetCurrency(Constants.AdditionalPrice2, ap2c);
-        }
+        internal void SetAdditionalPrice2Currency(CurrencyInfo ap2c) => SetCurrency(Constants.AdditionalPrice2, ap2c);
 
         #endregion
 
@@ -397,13 +265,12 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region Integer
 
-        internal delegate Boolean GetCurrencyDelegate(out CurrencyInfo ci);
+        internal delegate bool GetCurrencyDelegate(out CurrencyInfo ci);
 
-        internal Boolean GetCurrency(String fieldName, out CurrencyInfo ci)
+        internal bool GetCurrency(string fieldName, out CurrencyInfo ci)
         {
-            Int32 currencyId;
+            var currencyId = _profile.GetCustomInt(Constants.FieldDomain, fieldName + Constants.CurrencySuffix, Constants.ReadKey, CurrencyNotSet);
 
-            currencyId = Profile.GetCustomInt(Constants.FieldDomain, fieldName + Constants.CurrencySuffix, Constants.ReadKey, CurrencyNotSet);
             if (currencyId != CurrencyNotSet)
             {
                 ci = new CurrencyInfo(currencyId);
@@ -412,89 +279,86 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             {
                 ci = CurrencyInfo.Empty;
             }
-            return (currencyId != CurrencyNotSet);
+
+            return currencyId != CurrencyNotSet;
         }
 
-        private void SetCurrency(String fieldName, CurrencyInfo ci)
+        private void SetCurrency(string fieldName, CurrencyInfo ci)
         {
-            Profile.SetCustomInt(Constants.FieldDomain, fieldName + Constants.CurrencySuffix, InternalConstants.WriteKey, ci.Id);
+            _profile.SetCustomInt(Constants.FieldDomain, fieldName + Constants.CurrencySuffix, InternalConstants.WriteKey, ci.Id);
         }
 
         #endregion
 
-        #region Decimal
+        #region decimal
 
-        internal delegate Boolean GetPriceDelegate(out Decimal price);
+        internal delegate bool GetPriceDelegate(out decimal price);
 
-        internal static Boolean GetPriceFromText(String decoded
-            , out Decimal price)
+        internal static bool GetPriceFromText(string decoded, out decimal price)
         {
-            price = 0m;
-            if (String.IsNullOrEmpty(decoded) == false)
+            if (string.IsNullOrEmpty(decoded) == false)
             {
-                if (Decimal.TryParse(decoded, NumberStyles.Float, CultureInfo.CurrentCulture, out price))
+                if (decimal.TryParse(decoded, NumberStyles.Float, CultureInfo.CurrentCulture, out price))
                 {
-                    return (true);
+                    return true;
                 }
             }
-            return (false);
+
+            price = 0;
+
+            return false;
         }
 
-        internal Boolean GetPriceFromField(String fieldName, out Decimal price)
+        internal bool GetPriceFromField(string fieldName, out decimal price)
         {
-            Int64 encoded;
-
             price = PriceNotSet;
-            encoded = Profile.GetCustomCurrency(Constants.FieldDomain, fieldName, Constants.ReadKey, PriceNotSet);
+
+            var encoded = _profile.GetCustomCurrency(Constants.FieldDomain, fieldName, Constants.ReadKey, PriceNotSet);
+
             if (encoded != PriceNotSet)
             {
-                price = ((Decimal)encoded) / Constants.DigitDivider;
+                price = encoded / Constants.DigitDivider;
             }
-            return (price != PriceNotSet);
+
+            return price != PriceNotSet;
         }
 
-        private String GetPriceWithFallback(GetPriceDelegate getPrice)
+        private string GetPriceWithFallback(GetPriceDelegate getPrice)
         {
-            Decimal price;
-            String priceString;
-
-            if (getPrice(out price) == false)
+            if (getPrice(out var price) == false)
             {
-                priceString = String.Empty;
+                return string.Empty;
             }
             else
             {
-                priceString = GetFormattedPriceString(price);
+                var priceString = GetFormattedPriceString(price);
+
+                return priceString;
             }
-            return (priceString);
         }
 
-        internal String GetFormattedPriceString(Decimal price)
+        internal string GetFormattedPriceString(decimal price)
         {
-            String priceString;
-            CultureInfo currentCulture;
-            Decimal rounded;
+            var currentCulture = CultureInfo.CurrentCulture;
 
-            currentCulture = CultureInfo.CurrentCulture;
-            rounded = Math.Round(price, 2, MidpointRounding.AwayFromZero);
-            priceString = price.ToString("F2", currentCulture);
-            return (priceString);
+            //var rounded = Math.Round(price, 2, MidpointRounding.AwayFromZero);
+
+            var priceString = price.ToString("F2", currentCulture);
+
+            return priceString;
         }
 
-        private void SetPrice(String fieldName, String decoded)
+        private void SetPrice(string fieldName, string decoded)
         {
-            Decimal price;
-
-            if (GetPriceFromText(decoded, out price) == false)
+            if (GetPriceFromText(decoded, out var price) == false)
             {
-                Profile.ClearCustomField(Constants.FieldDomain, fieldName, InternalConstants.WriteKey);
+                _profile.ClearCustomField(Constants.FieldDomain, fieldName, InternalConstants.WriteKey);
             }
             else
             {
-                Int64 encoded;
+                var encoded = (long)(price * Constants.DigitDivider);
 
-                encoded = (Int64)(price * Constants.DigitDivider);
-                Profile.SetCustomCurrency(Constants.FieldDomain, fieldName, InternalConstants.WriteKey, encoded);
+                _profile.SetCustomCurrency(Constants.FieldDomain, fieldName, InternalConstants.WriteKey, encoded);
             }
         }
 

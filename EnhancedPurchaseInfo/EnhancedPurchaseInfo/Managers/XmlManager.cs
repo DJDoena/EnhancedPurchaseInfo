@@ -1,47 +1,44 @@
-﻿using DoenaSoft.DVDProfiler.DVDProfilerHelper;
+﻿using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
+using DoenaSoft.DVDProfiler.DVDProfilerHelper;
 using DoenaSoft.DVDProfiler.EnhancedPurchaseInfo.Resources;
 using Invelos.DVDProfilerPlugin;
 using Microsoft.WindowsAPICodePack.Taskbar;
-using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
 
 namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 {
     internal sealed class XmlManager
     {
-        private readonly Plugin Plugin;
+        private readonly Plugin _plugin;
 
         public XmlManager(Plugin plugin)
         {
-            Plugin = plugin;
+            _plugin = plugin;
         }
 
         #region Export
 
-        internal void Export(Boolean exportAll)
+        internal void Export(bool exportAll)
         {
-            using (SaveFileDialog sfd = new SaveFileDialog())
+            using (var sfd = new SaveFileDialog()
             {
-                sfd.AddExtension = true;
-                sfd.DefaultExt = ".xml";
-                sfd.Filter = "XML files|*.xml";
-                sfd.OverwritePrompt = true;
-                sfd.RestoreDirectory = true;
-                sfd.Title = Texts.SaveXmlFile;
-                sfd.FileName = "EnhancedPurchaseInfos.xml";
-
+                AddExtension = true,
+                DefaultExt = ".xml",
+                Filter = "XML files|*.xml",
+                OverwritePrompt = true,
+                RestoreDirectory = true,
+                Title = Texts.SaveXmlFile,
+                FileName = "EnhancedPurchaseInfos.xml",
+            })
+            {
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    Object[] ids;
-                    EnhancedPurchaseInfoList epis;
-
                     Cursor.Current = Cursors.WaitCursor;
-                    using (ProgressWindow progressWindow = new ProgressWindow())
+
+                    using (var progressWindow = new ProgressWindow())
                     {
                         #region Progress
-
-                        Int32 onePercent;
 
                         progressWindow.ProgressBar.Minimum = 0;
                         progressWindow.ProgressBar.Step = 1;
@@ -49,21 +46,26 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
                         #endregion
 
-                        ids = GetProfileIds(exportAll);
+                        var ids = GetProfileIds(exportAll);
 
-                        epis = new EnhancedPurchaseInfoList();
-                        epis.Profiles = new Profile[ids.Length];
+                        var epis = new EnhancedPurchaseInfoList()
+                        {
+                            Profiles = new Profile[ids.Length],
+                        };
 
                         #region Progress
 
                         progressWindow.ProgressBar.Maximum = ids.Length;
                         progressWindow.Show();
+
                         if (TaskbarManager.IsPlatformSupported)
                         {
                             TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
                             TaskbarManager.Instance.SetProgressValue(0, progressWindow.ProgressBar.Maximum);
                         }
-                        onePercent = progressWindow.ProgressBar.Maximum / 100;
+
+                        var onePercent = progressWindow.ProgressBar.Maximum / 100;
+
                         if ((progressWindow.ProgressBar.Maximum % 100) != 0)
                         {
                             onePercent++;
@@ -71,22 +73,23 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
                         #endregion
 
-                        for (Int32 i = 0; i < ids.Length; i++)
+                        for (var idIndex = 0; idIndex < ids.Length; idIndex++)
                         {
-                            String id;
-                            IDVDInfo profile;
+                            var id = ids[idIndex].ToString();
 
-                            id = ids[i].ToString();
-                            Plugin.Api.DVDByProfileID(out profile, id, PluginConstants.DATASEC_AllSections, 0);
-                            epis.Profiles[i] = GetXmlProfile(profile);
+                            _plugin.Api.DVDByProfileID(out var profile, id, PluginConstants.DATASEC_AllSections, 0);
+
+                            epis.Profiles[idIndex] = GetXmlProfile(profile);
 
                             #region Progress
 
                             progressWindow.ProgressBar.PerformStep();
+
                             if (TaskbarManager.IsPlatformSupported)
                             {
                                 TaskbarManager.Instance.SetProgressValue(progressWindow.ProgressBar.Value, progressWindow.ProgressBar.Maximum);
                             }
+
                             if ((progressWindow.ProgressBar.Value % onePercent) == 0)
                             {
                                 Application.DoEvents();
@@ -102,21 +105,23 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                             #region Progress
 
                             Application.DoEvents();
+
                             if (TaskbarManager.IsPlatformSupported)
                             {
                                 TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
                             }
+
                             progressWindow.CanClose = true;
                             progressWindow.Close();
 
                             #endregion
 
-                            MessageBox.Show(String.Format(MessageBoxTexts.DoneWithNumber, ids.Length, MessageBoxTexts.Exported)
+                            MessageBox.Show(string.Format(MessageBoxTexts.DoneWithNumber, ids.Length, MessageBoxTexts.Exported)
                                 , MessageBoxTexts.InformationHeader, MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show(String.Format(MessageBoxTexts.FileCantBeWritten, sfd.FileName, ex.Message)
+                            MessageBox.Show(string.Format(MessageBoxTexts.FileCantBeWritten, sfd.FileName, ex.Message)
                                 , MessageBoxTexts.ErrorHeader, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                         finally
@@ -129,6 +134,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                                 {
                                     TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
                                 }
+
                                 progressWindow.CanClose = true;
                                 progressWindow.Close();
                             }
@@ -144,76 +150,89 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         private Profile GetXmlProfile(IDVDInfo profile)
         {
-            PriceManager priceManager;
-            TextManager textManager;
-            DateManager dateManager;
-            Profile xmlProfile;
-            Decimal price;
-            CurrencyInfo ci;
-            String text;
-            EnhancedPurchaseInfo epi;
-            DefaultValues dv;
+            var dv = _plugin.Settings.DefaultValues;
 
-            dv = Plugin.Settings.DefaultValues;
+            var priceManager = new PriceManager(profile);
 
-            priceManager = new PriceManager(profile);
-            textManager = new TextManager(profile);
-            dateManager = new DateManager(profile);
+            var textManager = new TextManager(profile);
 
-            xmlProfile = new Profile();
-            xmlProfile.Id = profile.GetProfileID();
-            xmlProfile.Title = profile.GetTitle();
-            epi = new EnhancedPurchaseInfo();
+            var dateManager = new DateManager(profile);
+
+            var xmlProfile = new Profile()
+            {
+                Id = profile.GetProfileID(),
+                Title = profile.GetTitle(),
+            };
+
+            var epi = new EnhancedPurchaseInfo();
+
             xmlProfile.EnhancedPurchaseInfo = epi;
 
             #region Prices
 
-            if (priceManager.GetOriginalPrice(out price))
+            if (priceManager.GetOriginalPrice(out var price))
             {
-                priceManager.GetPurchasePriceCurrency(out ci);
+                priceManager.GetPurchasePriceCurrency(out var ci);
+
                 epi.OriginalPrice = GetXmlPrice(price, ci, dv.OriginalPriceLabel);
             }
+
             if (priceManager.GetShippingCost(out price))
             {
-                priceManager.GetShippingCostCurrency(out ci);
+                priceManager.GetShippingCostCurrency(out var ci);
+
                 epi.ShippingCost = GetXmlPrice(price, ci, dv.ShippingCostLabel);
             }
+
             if (priceManager.GetCreditCardCharge(out price))
             {
-                priceManager.GetCreditCardChargeCurrency(out ci);
+                priceManager.GetCreditCardChargeCurrency(out var ci);
+
                 epi.CreditCardCharge = GetXmlPrice(price, ci, dv.CreditCardChargeLabel);
             }
+
             if (priceManager.GetCreditCardFees(out price))
             {
-                priceManager.GetCreditCardFeesCurrency(out ci);
+                priceManager.GetCreditCardFeesCurrency(out var ci);
+
                 epi.CreditCardFees = GetXmlPrice(price, ci, dv.CreditCardFeesLabel);
             }
+
             if (priceManager.GetDiscount(out price))
             {
-                priceManager.GetDiscountCurrency(out ci);
+                priceManager.GetDiscountCurrency(out var ci);
+
                 epi.Discount = GetXmlPrice(price, ci, dv.DiscountLabel);
             }
+
             if (priceManager.GetCustomsFees(out price))
             {
-                priceManager.GetCustomsFeesCurrency(out ci);
+                priceManager.GetCustomsFeesCurrency(out var ci);
+
                 epi.CustomsFees = GetXmlPrice(price, ci, dv.CustomsFeesLabel);
             }
-            if (textManager.GetCouponType(out text))
+
+            if (textManager.GetCouponType(out var text))
             {
                 epi.CouponType = GetXmlText(text, dv.CouponTypeLabel);
             }
+
             if (textManager.GetCouponCode(out text))
             {
                 epi.CouponCode = GetXmlText(text, dv.CouponCodeLabel);
             }
+
             if (priceManager.GetAdditionalPrice1(out price))
             {
-                priceManager.GetAdditionalPrice1Currency(out ci);
+                priceManager.GetAdditionalPrice1Currency(out var ci);
+
                 epi.AdditionalPrice1 = GetXmlPrice(price, ci, dv.AdditionalPrice1Label);
             }
+
             if (priceManager.GetAdditionalPrice2(out price))
             {
-                priceManager.GetAdditionalPrice2Currency(out ci);
+                priceManager.GetAdditionalPrice2Currency(out var ci);
+
                 epi.AdditionalPrice2 = GetXmlPrice(price, ci, dv.AdditionalPrice2Label);
             }
 
@@ -229,102 +248,93 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
             #endregion
 
-            return (xmlProfile);
+            return xmlProfile;
         }
 
-        private Text GetXmlText(String textValue
-            , String displayName)
+        private Text GetXmlText(string textValue, string displayName)
         {
-            Text text;
-
-            text = new Text();
-            text.Value = textValue;
-            text.DisplayName = displayName;
-            return (text);
-        }
-
-        private Date GetDate(DateManager.GetDateDelegate getDate
-            , String displayName)
-        {
-            DateTime dateValue;
-            Date date;
-
-            if (getDate(out dateValue))
+            var text = new Text
             {
-                date = new Date();
-                date.Value = dateValue;
-                date.DisplayName = displayName;
+                Value = textValue,
+                DisplayName = displayName,
+            };
+
+            return text;
+        }
+
+        private Date GetDate(DateManager.GetDateDelegate getDate, string displayName)
+        {
+            if (getDate(out var dateValue))
+            {
+                var date = new Date()
+                {
+                    Value = dateValue,
+                    DisplayName = displayName,
+                };
+
+                return date;
             }
             else
             {
-                date = null;
+                return null;
             }
-            return (date);
         }
 
-        private static Price GetXmlPrice(Decimal price
-            , CurrencyInfo ci
-            , String displayName)
+        private static Price GetXmlPrice(decimal price, CurrencyInfo ci, string displayName)
         {
-            Price xmlPrice;
+            var xmlPrice = new Price()
+            {
+                Value = Convert.ToSingle(price),
+                DenominationType = ci.Type,
+                DenominationDesc = ci.Name,
+                FormattedValue = ci.GetFormattedValue(price),
+                DisplayName = displayName,
+            };
 
-            xmlPrice = new Price();
-            xmlPrice.Value = Convert.ToSingle(price);
-            xmlPrice.DenominationType = ci.Type;
-            xmlPrice.DenominationDesc = ci.Name;
-            xmlPrice.FormattedValue = ci.GetFormattedValue(price);
-            xmlPrice.DisplayName = displayName;
-            return (xmlPrice);
+            return xmlPrice;
         }
 
         #endregion
 
         #region Import
 
-        internal void Import(Boolean importAll)
+        internal void Import(bool importAll)
         {
-            using (OpenFileDialog ofd = new OpenFileDialog())
+            using (var ofd = new OpenFileDialog()
             {
-                ofd.CheckFileExists = true;
-                ofd.Filter = "XML files|*.xml";
-                ofd.Multiselect = false;
-                ofd.RestoreDirectory = true;
-                ofd.Title = Texts.LoadXmlFile;
-
+                CheckFileExists = true,
+                Filter = "XML files|*.xml",
+                Multiselect = false,
+                RestoreDirectory = true,
+                Title = Texts.LoadXmlFile,
+            })
+            {
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    EnhancedPurchaseInfoList epis;
-
                     Cursor.Current = Cursors.WaitCursor;
 
-                    epis = null;
-
+                    EnhancedPurchaseInfoList epis;
                     try
                     {
                         epis = EnhancedPurchaseInfoList.Deserialize(ofd.FileName);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(String.Format(MessageBoxTexts.FileCantBeRead, ofd.FileName, ex.Message)
+                        epis = null;
+
+                        MessageBox.Show(string.Format(MessageBoxTexts.FileCantBeRead, ofd.FileName, ex.Message)
                            , MessageBoxTexts.ErrorHeader, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
 
                     if (epis != null)
                     {
-                        Int32 count;
+                        var count = 0;
 
-                        count = 0;
-                        if ((epis.Profiles != null) && (epis.Profiles.Length > 0))
+                        if (epis.Profiles != null && epis.Profiles.Length > 0)
                         {
-                            using (ProgressWindow progressWindow = new ProgressWindow())
+                            using (var progressWindow = new ProgressWindow())
                             {
-                                Dictionary<String, Boolean> profileIds;
-                                Object[] ids;
-                                Dictionary<String, CurrencyInfo> inverse;
-
                                 #region Progress
-
-                                Int32 onePercent;
 
                                 progressWindow.ProgressBar.Minimum = 0;
                                 progressWindow.ProgressBar.Step = 1;
@@ -332,20 +342,23 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
                                 #endregion
 
-                                ids = GetProfileIds(importAll);
+                                var ids = GetProfileIds(importAll);
 
-                                profileIds = new Dictionary<String, Boolean>(ids.Length);
+                                var profileIds = new Dictionary<string, bool>(ids.Length);
 
                                 #region Progress
 
                                 progressWindow.ProgressBar.Maximum = ids.Length;
                                 progressWindow.Show();
+
                                 if (TaskbarManager.IsPlatformSupported)
                                 {
                                     TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
                                     TaskbarManager.Instance.SetProgressValue(0, progressWindow.ProgressBar.Maximum);
                                 }
-                                onePercent = progressWindow.ProgressBar.Maximum / 100;
+
+                                var onePercent = progressWindow.ProgressBar.Maximum / 100;
+
                                 if ((progressWindow.ProgressBar.Maximum % 100) != 0)
                                 {
                                     onePercent++;
@@ -353,36 +366,33 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
                                 #endregion
 
-                                for (Int32 i = 0; i < ids.Length; i++)
+                                for (var idIndex = 0; idIndex < ids.Length; idIndex++)
                                 {
-                                    profileIds.Add(ids[i].ToString(), true);
+                                    profileIds.Add(ids[idIndex].ToString(), true);
                                 }
 
-                                inverse = new Dictionary<String, CurrencyInfo>(Plugin.Currencies.Count);
+                                var inverse = new Dictionary<string, CurrencyInfo>(_plugin.Currencies.Count);
 
-                                foreach (CurrencyInfo ci in Plugin.Currencies.Values)
+                                foreach (CurrencyInfo ci in _plugin.Currencies.Values)
                                 {
                                     inverse.Add(ci.Type, ci);
                                 }
 
-                                foreach (Profile xmlProfile in epis.Profiles)
+                                foreach (var xmlProfile in epis.Profiles)
                                 {
-                                    if ((xmlProfile != null) && (xmlProfile.EnhancedPurchaseInfo != null) && (profileIds.ContainsKey(xmlProfile.Id)))
+                                    if (xmlProfile != null && xmlProfile.EnhancedPurchaseInfo != null && profileIds.ContainsKey(xmlProfile.Id))
                                     {
-                                        IDVDInfo profile;
-                                        EnhancedPurchaseInfo epi;
-                                        PriceManager priceManager;
-                                        TextManager textManager;
-                                        DateManager dateManager;
+                                        var profile = _plugin.Api.CreateDVD();
 
-                                        profile = Plugin.Api.CreateDVD();
                                         profile.SetProfileID(xmlProfile.Id);
 
-                                        priceManager = new PriceManager(profile);
-                                        textManager = new TextManager(profile);
-                                        dateManager = new DateManager(profile);
+                                        var priceManager = new PriceManager(profile);
 
-                                        epi = xmlProfile.EnhancedPurchaseInfo;
+                                        var textManager = new TextManager(profile);
+
+                                        var dateManager = new DateManager(profile);
+
+                                        var epi = xmlProfile.EnhancedPurchaseInfo;
 
                                         #region Prices
 
@@ -415,10 +425,12 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                                     #region Progress
 
                                     progressWindow.ProgressBar.PerformStep();
+
                                     if (TaskbarManager.IsPlatformSupported)
                                     {
                                         TaskbarManager.Instance.SetProgressValue(progressWindow.ProgressBar.Value, progressWindow.ProgressBar.Maximum);
                                     }
+
                                     if ((progressWindow.ProgressBar.Value % onePercent) == 0)
                                     {
                                         Application.DoEvents();
@@ -430,10 +442,12 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                                 #region Progress
 
                                 Application.DoEvents();
+
                                 if (TaskbarManager.IsPlatformSupported)
                                 {
                                     TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
                                 }
+
                                 progressWindow.CanClose = true;
                                 progressWindow.Close();
 
@@ -441,7 +455,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                             }
                         }
 
-                        MessageBox.Show(String.Format(MessageBoxTexts.DoneWithNumber, count, MessageBoxTexts.Imported)
+                        MessageBox.Show(string.Format(MessageBoxTexts.DoneWithNumber, count, MessageBoxTexts.Imported)
                                 , MessageBoxTexts.InformationHeader, MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
 
@@ -450,8 +464,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        private void SetDate(Date date
-            , Action<DateTime> setDate)
+        private void SetDate(Date date, Action<DateTime> setDate)
         {
             if (date != null)
             {
@@ -459,12 +472,11 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
             else
             {
-                setDate(DateManager.DateNotSet);
+                setDate(DateManager._dateNotSet);
             }
         }
 
-        private void SetText(Action<String> setText
-            , Text text)
+        private void SetText(Action<string> setText, Text text)
         {
             if (text != null)
             {
@@ -476,47 +488,37 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        private void SetPrice(Dictionary<String, CurrencyInfo> inverse
-            , Action<String> setPrice
-            , Action<CurrencyInfo> setCurrency
-            , Price xmlPrice
-            , PriceManager priceManager)
+        private void SetPrice(Dictionary<string, CurrencyInfo> inverse, Action<string> setPrice, Action<CurrencyInfo> setCurrency, Price xmlPrice, PriceManager priceManager)
         {
             if (xmlPrice != null)
             {
-                Decimal price;
-                String priceString;
-                CurrencyInfo ci;
+                var price = Convert.ToDecimal(xmlPrice.Value);
 
-                price = Convert.ToDecimal(xmlPrice.Value);
-                priceString = priceManager.GetFormattedPriceString(price);
+                var priceString = priceManager.GetFormattedPriceString(price);
+
                 setPrice(priceString);
-                ci = inverse[xmlPrice.DenominationType];
+
+                var ci = inverse[xmlPrice.DenominationType];
+
                 setCurrency(ci);
             }
             else
             {
                 setPrice(null);
+
                 setCurrency(CurrencyInfo.Empty);
             }
         }
 
         #endregion
 
-        private Object[] GetProfileIds(Boolean allIds)
+        private object[] GetProfileIds(bool allIds)
         {
-            Object[] ids;
+            var ids = allIds
+                ? (object[])(_plugin.Api.GetAllProfileIDs())
+                : (object[])(_plugin.Api.GetFlaggedProfileIDs());
 
-            if (allIds)
-            {
-                ids = (Object[])(Plugin.Api.GetAllProfileIDs());
-            }
-            else
-            {
-                ids = (Object[])(Plugin.Api.GetFlaggedProfileIDs());
-            }
-
-            return (ids);
+            return ids;
         }
     }
 }

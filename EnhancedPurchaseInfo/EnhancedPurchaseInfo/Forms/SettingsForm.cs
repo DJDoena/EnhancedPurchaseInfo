@@ -1,18 +1,18 @@
-﻿using DoenaSoft.DVDProfiler.EnhancedPurchaseInfo.Resources;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Windows.Forms;
+using DoenaSoft.DVDProfiler.EnhancedPurchaseInfo.Resources;
 
 namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 {
     public partial class SettingsForm : Form
     {
-        private readonly Plugin Plugin;
+        private readonly Plugin _plugin;
 
         public SettingsForm(Plugin plugin)
         {
-            Plugin = plugin;
+            _plugin = plugin;
 
             InitializeComponent();
 
@@ -27,30 +27,32 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         private void SetComboBoxes()
         {
-            Dictionary<Int32, CultureInfo> uiLanguages;
-            CultureInfo ci;
-
-            DefaultCurrencyComboBox.DataSource = new BindingSource(Plugin.Currencies, null);
+            DefaultCurrencyComboBox.DataSource = new BindingSource(_plugin.Currencies, null);
             DefaultCurrencyComboBox.DisplayMember = "Key";
             DefaultCurrencyComboBox.ValueMember = "Value";
-            DefaultCurrencyComboBox.Text = Plugin.DefaultCurrency.Name;
+            DefaultCurrencyComboBox.Text = _plugin.DefaultCurrency.Name;
 
-            uiLanguages = new Dictionary<Int32, CultureInfo>(2);
-            ci = CultureInfo.GetCultureInfo("en");
+            var uiLanguages = new Dictionary<int, CultureInfo>(2);
+
+            var ci = CultureInfo.GetCultureInfo("en");
+
+
             uiLanguages.Add(ci.LCID, ci);
+
             ci = CultureInfo.GetCultureInfo("de");
+
             uiLanguages.Add(ci.LCID, ci);
+
             UiLanguageComboBox.DataSource = new BindingSource(uiLanguages, null);
             UiLanguageComboBox.DisplayMember = "Value";
             UiLanguageComboBox.ValueMember = "Key";
-            UiLanguageComboBox.Text = Plugin.Settings.DefaultValues.UiLanguage.DisplayName;
+            UiLanguageComboBox.Text = _plugin.Settings.DefaultValues.UiLanguage.DisplayName;
         }
 
         private void SetToolTips()
         {
-            ToolTip tt;
+            var tt = new ToolTip();
 
-            tt = new ToolTip();
             tt.SetToolTip(ResetAdditionalPrice1Button, Texts.Reset);
             tt.SetToolTip(ResetAdditionalPrice2Button, Texts.Reset);
             tt.SetToolTip(ResetAdditionalDate1Button, Texts.Reset);
@@ -59,7 +61,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         private void SetSettings()
         {
-            DefaultValues dv = Plugin.Settings.DefaultValues;
+            var dv = _plugin.Settings.DefaultValues;
 
             #region Labels
 
@@ -331,20 +333,18 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             #endregion
         }
 
-        private void OnLabelTextChanged(Object sender, EventArgs e)
-        {
-            SetVariableLabels();
-        }
+        private void OnLabelTextChanged(object sender, EventArgs e) => SetVariableLabels();
 
-        private void OnDiscardButtonClick(Object sender, EventArgs e)
+        private void OnDiscardButtonClick(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
+
             Close();
         }
 
-        private void OnSaveButtonClick(Object sender, EventArgs e)
+        private void OnSaveButtonClick(object sender, EventArgs e)
         {
-            DefaultValues dv = Plugin.Settings.DefaultValues;
+            var dv = _plugin.Settings.DefaultValues;
 
             #region Labels
 
@@ -437,13 +437,13 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
             dv.ExportToCollectionXml = ExportToCollectionXmlCheckBox.Checked;
 
-            CurrencyInfo defaultCurrency = GetCurrencyInfo(DefaultCurrencyComboBox);
+            var defaultCurrency = GetCurrencyInfo(DefaultCurrencyComboBox);
 
             dv.DefaultCurrency = defaultCurrency.Id;
 
-            Plugin.DefaultCurrency = defaultCurrency;
+            _plugin.DefaultCurrency = defaultCurrency;
 
-            CultureInfo uiLanguage = GetUiLanguage();
+            var uiLanguage = GetUiLanguage();
 
             dv.UiLanguage = uiLanguage;
 
@@ -458,115 +458,113 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         private CultureInfo GetUiLanguage()
         {
-            CultureInfo ci;
-            KeyValuePair<Int32, CultureInfo> kvp;
+            var kvp = (KeyValuePair<int, CultureInfo>)(UiLanguageComboBox.SelectedItem);
 
-            kvp = (KeyValuePair<Int32, CultureInfo>)(UiLanguageComboBox.SelectedItem);
-            ci = kvp.Value;
-            return (ci);
+            var ci = kvp.Value;
+
+            return ci;
         }
 
         private CurrencyInfo GetCurrencyInfo(ComboBox comboBox)
         {
-            CurrencyInfo ci;
-            KeyValuePair<String, CurrencyInfo> kvp;
+            var kvp = (KeyValuePair<string, CurrencyInfo>)(comboBox.SelectedItem);
 
-            kvp = (KeyValuePair<String, CurrencyInfo>)(comboBox.SelectedItem);
-            ci = kvp.Value;
-            return (ci);
+            var ci = kvp.Value;
+
+            return ci;
         }
 
         #region OnResetButtonClick
 
         #region Prices
 
-        private void OnResetOriginalPriceButtonClick(Object sender, EventArgs e)
+        private void OnResetOriginalPriceButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             OriginalPriceTextBox.Text = Texts.OriginalPrice;
+
             UnsetTempLanguage(ci);
         }
 
-        private void OnResetShippingCostButtonClick(Object sender, EventArgs e)
+        private void OnResetShippingCostButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             ShippingCostTextBox.Text = Texts.ShippingCost;
+
             UnsetTempLanguage(ci);
         }
 
-        private void OnResetCreditCardChargeButtonClick(Object sender, EventArgs e)
+        private void OnResetCreditCardChargeButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             CreditCardChargeTextBox.Text = Texts.CreditCardCharge;
+
             UnsetTempLanguage(ci);
         }
 
-        private void OnResetCreditCardFeesButtonClick(Object sender, EventArgs e)
+        private void OnResetCreditCardFeesButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             CreditCardFeesTextBox.Text = Texts.CreditCardFees;
+
             UnsetTempLanguage(ci);
         }
 
-        private void OnResetDiscountButtonClick(Object sender, EventArgs e)
+        private void OnResetDiscountButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             DiscountTextBox.Text = Texts.Discount;
+
             UnsetTempLanguage(ci);
         }
 
-        private void OnResetCustomsFeesButtonClick(Object sender, EventArgs e)
+        private void OnResetCustomsFeesButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             CustomsFeesTextBox.Text = Texts.CustomsFees;
+
             UnsetTempLanguage(ci);
         }
 
-        private void OnResetCouponTypeButtonClick(Object sender, EventArgs e)
+        private void OnResetCouponTypeButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             CouponTypeTextBox.Text = Texts.CouponType;
+
             UnsetTempLanguage(ci);
         }
 
-        private void OnResetCouponCodeButtonClick(Object sender, EventArgs e)
+        private void OnResetCouponCodeButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             CouponCodeTextBox.Text = Texts.CouponCode;
+
             UnsetTempLanguage(ci);
         }
 
-        private void OnResetAdditionalPrice1ButtonClick(Object sender, EventArgs e)
+        private void OnResetAdditionalPrice1ButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             AdditionalPrice1TextBox.Text = Texts.AdditionalPrice1;
+
             UnsetTempLanguage(ci);
         }
 
-        private void OnResetAdditionalPrice2ButtonClick(Object sender, EventArgs e)
+        private void OnResetAdditionalPrice2ButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             AdditionalPrice2TextBox.Text = Texts.AdditionalPrice2;
+
             UnsetTempLanguage(ci);
         }
 
@@ -574,48 +572,48 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region Dates
 
-        private void OnResetOrderDateButtonClick(Object sender, EventArgs e)
+        private void OnResetOrderDateButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             OrderDateTextBox.Text = Texts.OrderDate;
+
             UnsetTempLanguage(ci);
         }
 
-        private void OnResetShippingDateButtonClick(Object sender, EventArgs e)
+        private void OnResetShippingDateButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             ShippingDateTextBox.Text = Texts.ShippingDate;
+
             UnsetTempLanguage(ci);
         }
 
-        private void OnResetDeliveryDateButtonClick(Object sender, EventArgs e)
+        private void OnResetDeliveryDateButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             DeliveryDateTextBox.Text = Texts.DeliveryDate;
+
             UnsetTempLanguage(ci);
         }
 
-        private void OnResetAdditionalDate1ButtonClick(Object sender, EventArgs e)
+        private void OnResetAdditionalDate1ButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             AdditionalDate1TextBox.Text = Texts.AdditionalDate1;
+
             UnsetTempLanguage(ci);
         }
 
-        private void OnResetAdditionalDate2ButtonClick(Object sender, EventArgs e)
+        private void OnResetAdditionalDate2ButtonClick(object sender, EventArgs e)
         {
-            CultureInfo ci;
+            var ci = SetTempLanguage();
 
-            ci = SetTempLanguage();
             AdditionalDate2TextBox.Text = Texts.AdditionalDate2;
+
             UnsetTempLanguage(ci);
         }
 
@@ -623,19 +621,16 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         private CultureInfo SetTempLanguage()
         {
-            CultureInfo previousCI;
-            CultureInfo currentCI;
+            var previousCI = Texts.Culture;
 
-            previousCI = Texts.Culture;
-            currentCI = GetUiLanguage();
+            var currentCI = GetUiLanguage();
+
             Texts.Culture = currentCI;
-            return (previousCI);
+
+            return previousCI;
         }
 
-        private void UnsetTempLanguage(CultureInfo previousCI)
-        {
-            Texts.Culture = previousCI;
-        }
+        private void UnsetTempLanguage(CultureInfo previousCI) => Texts.Culture = previousCI;
 
         #endregion
     }

@@ -5,48 +5,49 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 {
     internal sealed class DateManager
     {
-        private readonly IDVDInfo Profile;
+        private readonly IDVDInfo _profile;
 
-        internal readonly static DateTime DateNotSet;
+        internal readonly static DateTime _dateNotSet;
 
         static DateManager()
         {
-            DateNotSet = new DateTime(1899, 12, 30); //it's what Invelos uses
+            _dateNotSet = new DateTime(1899, 12, 30); //it's what Invelos uses
         }
 
         internal DateManager(IDVDInfo profile)
         {
-            Profile = profile;
+            _profile = profile;
         }
 
-        internal delegate Boolean GetDateDelegate(out DateTime date);
+        internal delegate bool GetDateDelegate(out DateTime date);
 
         #region Invelos Data
 
         #region PurchaseDate
 
-        internal Boolean GetPurchaseDate(out DateTime pd)
+        internal bool GetPurchaseDate(out DateTime pd)
         {
-            if (Profile.PurchaseDateIsEmpty())
+            if (_profile.PurchaseDateIsEmpty())
             {
-                pd = DateNotSet;
+                pd = _dateNotSet;
             }
             else
             {
-                pd = Profile.GetPurchaseDate();
+                pd = _profile.GetPurchaseDate();
             }
-            return (pd != DateNotSet);
+
+            return pd != _dateNotSet;
         }
 
         internal void SetPurchaseDate(DateTime pd)
         {
-            if (pd == DateNotSet)
+            if (pd == _dateNotSet)
             {
-                Profile.ClearPurchaseDate();
+                _profile.ClearPurchaseDate();
             }
             else
             {
-                Profile.SetPurchaseDate(pd);
+                _profile.SetPurchaseDate(pd);
             }
         }
 
@@ -58,92 +59,64 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region OrderDate
 
-        internal Boolean GetOrderDate(out DateTime od)
-        {
-            return (GetDate(Constants.OrderDate, out od));
-        }
+        internal bool GetOrderDate(out DateTime od) => GetDate(Constants.OrderDate, out od);
 
-        internal void SetOrderDate(DateTime od)
-        {
-            SetDate(Constants.OrderDate, od);
-        }
+        internal void SetOrderDate(DateTime od) => SetDate(Constants.OrderDate, od);
 
         #endregion
 
         #region ShippingDate
 
-        internal Boolean GetShippingDate(out DateTime sd)
-        {
-            return (GetDate(Constants.ShippingDate, out sd));
-        }
+        internal bool GetShippingDate(out DateTime sd) => GetDate(Constants.ShippingDate, out sd);
 
-        internal void SetShippingDate(DateTime sd)
-        {
-            SetDate(Constants.ShippingDate, sd);
-        }
+        internal void SetShippingDate(DateTime sd) => SetDate(Constants.ShippingDate, sd);
 
         #endregion
 
         #region DeliveryDate
 
-        internal Boolean GetDeliveryDate(out DateTime dd)
-        {
-            return (GetDate(Constants.DeliveryDate, out dd));
-        }
+        internal bool GetDeliveryDate(out DateTime dd) => GetDate(Constants.DeliveryDate, out dd);
 
-        internal void SetDeliveryDate(DateTime dd)
-        {
-            SetDate(Constants.DeliveryDate, dd);
-        }
+        internal void SetDeliveryDate(DateTime dd) => SetDate(Constants.DeliveryDate, dd);
 
         #endregion
 
         #region AdditionalDate1
 
-        internal Boolean GetAdditionalDate1(out DateTime ad1)
-        {
-            return (GetDate(Constants.AdditionalDate1, out ad1));
-        }
+        internal bool GetAdditionalDate1(out DateTime ad1) => GetDate(Constants.AdditionalDate1, out ad1);
 
-        internal void SetAdditionalDate1(DateTime ad1)
-        {
-            SetDate(Constants.AdditionalDate1, ad1);
-        }
+        internal void SetAdditionalDate1(DateTime ad1) => SetDate(Constants.AdditionalDate1, ad1);
 
         #endregion
 
         #region AdditionalDate2
 
-        internal Boolean GetAdditionalDate2(out DateTime ad2)
-        {
-            return (GetDate(Constants.AdditionalDate2, out ad2));
-        }
+        internal bool GetAdditionalDate2(out DateTime ad2) => GetDate(Constants.AdditionalDate2, out ad2);
 
-        internal void SetAdditionalDate2(DateTime ad2)
-        {
-            SetDate(Constants.AdditionalDate2, ad2);
-        }
+        internal void SetAdditionalDate2(DateTime ad2) => SetDate(Constants.AdditionalDate2, ad2);
 
         #endregion
 
         #endregion
 
-        private Boolean GetDate(String fieldName, out DateTime date)
+        private bool GetDate(string fieldName, out DateTime date)
         {
-            date = Profile.GetCustomDateTime(Constants.FieldDomain, fieldName, Constants.ReadKey, DateNotSet);
-            return (date != DateNotSet);
+            date = _profile.GetCustomDateTime(Constants.FieldDomain, fieldName, Constants.ReadKey, _dateNotSet);
+
+            return date != _dateNotSet;
         }
 
-        private void SetDate(String fieldName, DateTime date)
+        private void SetDate(string fieldName, DateTime date)
         {
-            if (date == DateNotSet)
+            if (date == _dateNotSet)
             {
-                Profile.ClearCustomField(Constants.FieldDomain, fieldName, InternalConstants.WriteKey);
+                _profile.ClearCustomField(Constants.FieldDomain, fieldName, InternalConstants.WriteKey);
             }
             else
             {
                 date = new DateTime(date.Year, date.Month, date.Day);
-                Profile.SetCustomDateTime(Constants.FieldDomain, fieldName, InternalConstants.WriteKey, date);
+
+                _profile.SetCustomDateTime(Constants.FieldDomain, fieldName, InternalConstants.WriteKey, date);
             }
         }
     }

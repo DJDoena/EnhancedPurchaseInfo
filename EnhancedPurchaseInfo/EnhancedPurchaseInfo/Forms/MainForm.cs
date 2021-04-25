@@ -1,43 +1,41 @@
-﻿using DoenaSoft.DVDProfiler.DVDProfilerHelper;
-using DoenaSoft.DVDProfiler.EnhancedPurchaseInfo.Resources;
-using Invelos.DVDProfilerPlugin;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
+using DoenaSoft.DVDProfiler.DVDProfilerHelper;
+using DoenaSoft.DVDProfiler.EnhancedPurchaseInfo.Resources;
+using Invelos.DVDProfilerPlugin;
 
 namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 {
     internal partial class MainForm : Form
     {
-        private readonly Plugin Plugin;
+        private readonly Plugin _plugin;
 
-        private readonly IDVDInfo Profile;
+        private readonly IDVDInfo _profile;
 
-        private readonly PriceManager PriceManager;
+        private readonly PriceManager _priceManager;
 
-        private readonly TextManager TextManager;
+        private readonly TextManager _textManager;
 
-        private readonly DateManager DateManager;
+        private readonly DateManager _dateManager;
 
-        private readonly Boolean FullEdit;
+        private readonly bool _fullEdit;
 
-        private Boolean DataChanged;
+        private bool _dataChanged;
 
         internal event EventHandler OpenCalculator;
 
-        internal MainForm(Plugin plugin
-            , IDVDInfo profile
-            , Boolean fullEdit)
+        internal MainForm(Plugin plugin, IDVDInfo profile, bool fullEdit)
         {
-            Plugin = plugin;
-            Profile = profile;
-            FullEdit = fullEdit;
+            _plugin = plugin;
+            _profile = profile;
+            _fullEdit = fullEdit;
 
-            PriceManager = new PriceManager(profile);
-            TextManager = new TextManager(profile);
-            DateManager = new DateManager(profile);
+            _priceManager = new PriceManager(profile);
+            _textManager = new TextManager(profile);
+            _dateManager = new DateManager(profile);
 
             InitializeComponent();
 
@@ -48,20 +46,20 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             SetLabels();
             SetReadOnlies();
 
-            DataChanged = false;
+            _dataChanged = false;
         }
 
         private void SetReadOnlies()
         {
-            this.PurchasePriceTextBox.ReadOnly = (FullEdit == false);
-            this.PurchasePriceComboBox.Enabled = FullEdit;
+            PurchasePriceTextBox.ReadOnly = _fullEdit == false;
+            PurchasePriceComboBox.Enabled = _fullEdit;
 
-            this.SRPTextBox.ReadOnly = (FullEdit == false);
-            this.SRPComboBox.Enabled = FullEdit;
+            SRPTextBox.ReadOnly = (_fullEdit == false);
+            SRPComboBox.Enabled = _fullEdit;
 
-            this.PurchaseDatePicker.Enabled = FullEdit;
+            PurchaseDatePicker.Enabled = _fullEdit;
 
-            if (Plugin.IsRemoteAccess)
+            if (_plugin.IsRemoteAccess)
             {
                 ImportFromXMLToolStripMenuItem.Enabled = false;
                 PasteAllToolStripMenuItem.Enabled = false;
@@ -77,17 +75,17 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             {
                 foreach (Control control in controls)
                 {
-                    if (control is TextBox)
+                    if (control is TextBox textBox)
                     {
-                        ((TextBox)control).ReadOnly = true;
+                        textBox.ReadOnly = true;
                     }
-                    else if (control is ComboBox)
+                    else if (control is ComboBox comboBox)
                     {
-                        ((ComboBox)control).Enabled = false;
+                        comboBox.Enabled = false;
                     }
-                    else if (control is DateTimePicker)
+                    else if (control is DateTimePicker datePicker)
                     {
-                        ((DateTimePicker)control).Enabled = false;
+                        datePicker.Enabled = false;
                     }
                     else
                     {
@@ -99,20 +97,18 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         private void SetDatePicker()
         {
-            SetDatePicker(PurchaseDatePicker, DateManager.GetPurchaseDate);
+            SetDatePicker(PurchaseDatePicker, _dateManager.GetPurchaseDate);
 
-            SetDatePicker(OrderDatePicker, DateManager.GetOrderDate);
-            SetDatePicker(ShippingDatePicker, DateManager.GetShippingDate);
-            SetDatePicker(DeliveryDatePicker, DateManager.GetDeliveryDate);
-            SetDatePicker(AdditionalDate1Picker, DateManager.GetAdditionalDate1);
-            SetDatePicker(AdditionalDate2Picker, DateManager.GetAdditionalDate2);
+            SetDatePicker(OrderDatePicker, _dateManager.GetOrderDate);
+            SetDatePicker(ShippingDatePicker, _dateManager.GetShippingDate);
+            SetDatePicker(DeliveryDatePicker, _dateManager.GetDeliveryDate);
+            SetDatePicker(AdditionalDate1Picker, _dateManager.GetAdditionalDate1);
+            SetDatePicker(AdditionalDate2Picker, _dateManager.GetAdditionalDate2);
         }
 
         private void SetDatePicker(DateTimePicker picker, DateManager.GetDateDelegate getDate)
         {
-            DateTime date;
-
-            if (getDate(out date))
+            if (getDate(out var date))
             {
                 picker.Checked = true;
                 picker.Value = date;
@@ -125,8 +121,6 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         private void BindComboBoxes()
         {
-            List<String> couponTypes;
-
             #region Invelos Prices
 
             BindDatabox(PurchasePriceComboBox);
@@ -149,8 +143,10 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
             #region CouponType
 
-            couponTypes = new List<String>(Plugin.CouponTypes.Keys);
+            var couponTypes = new List<string>(_plugin.CouponTypes.Keys);
+
             couponTypes.Sort();
+
             CouponTypeComboBox.Items.AddRange(couponTypes.ToArray());
 
             #endregion
@@ -158,7 +154,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         private void BindDatabox(ComboBox comboBox)
         {
-            comboBox.DataSource = new BindingSource(Plugin.Currencies, null);
+            comboBox.DataSource = new BindingSource(_plugin.Currencies, null);
             comboBox.DisplayMember = "Key";
             comboBox.ValueMember = "Value";
         }
@@ -167,30 +163,28 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
         {
             #region Invelos Prices
 
-            SetComboBox(PurchasePriceComboBox, PriceManager.GetPurchasePriceCurrency);
-            SetComboBox(SRPComboBox, PriceManager.GetSRPCurrency);
+            SetComboBox(PurchasePriceComboBox, _priceManager.GetPurchasePriceCurrency);
+            SetComboBox(SRPComboBox, _priceManager.GetSRPCurrency);
 
             #endregion
 
             #region Plugin Prices
 
-            SetComboBox(OriginalPriceComboBox, PriceManager.GetOriginalPriceCurrency);
-            SetComboBox(ShippingCostComboBox, PriceManager.GetShippingCostCurrency);
-            SetComboBox(CreditCardChargeComboBox, PriceManager.GetCreditCardChargeCurrency);
-            SetComboBox(CreditCardFeesComboBox, PriceManager.GetCreditCardFeesCurrency);
-            SetComboBox(DiscountComboBox, PriceManager.GetDiscountCurrency);
-            SetComboBox(CustomsFeesComboBox, PriceManager.GetCustomsFeesCurrency);
-            SetComboBox(AdditionalPrice1ComboBox, PriceManager.GetAdditionalPrice1Currency);
-            SetComboBox(AdditionalPrice2ComboBox, PriceManager.GetAdditionalPrice2Currency);
+            SetComboBox(OriginalPriceComboBox, _priceManager.GetOriginalPriceCurrency);
+            SetComboBox(ShippingCostComboBox, _priceManager.GetShippingCostCurrency);
+            SetComboBox(CreditCardChargeComboBox, _priceManager.GetCreditCardChargeCurrency);
+            SetComboBox(CreditCardFeesComboBox, _priceManager.GetCreditCardFeesCurrency);
+            SetComboBox(DiscountComboBox, _priceManager.GetDiscountCurrency);
+            SetComboBox(CustomsFeesComboBox, _priceManager.GetCustomsFeesCurrency);
+            SetComboBox(AdditionalPrice1ComboBox, _priceManager.GetAdditionalPrice1Currency);
+            SetComboBox(AdditionalPrice2ComboBox, _priceManager.GetAdditionalPrice2Currency);
 
             #endregion
         }
 
         private void SetComboBox(ComboBox comboBox, PriceManager.GetCurrencyDelegate getCurrency)
         {
-            CurrencyInfo ci;
-
-            if (getCurrency(out ci))
+            if (getCurrency(out var ci))
             {
                 comboBox.Text = ci.Name;
             }
@@ -202,9 +196,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         private void SetLabels()
         {
-            DefaultValues dv;
-
-            dv = Plugin.Settings.DefaultValues;
+            var dv = _plugin.Settings.DefaultValues;
 
             #region Invelos Prices
 
@@ -296,23 +288,23 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
         {
             #region Invelos Prices
 
-            PurchasePriceTextBox.Text = PriceManager.GetPurchasePriceWithFallback();
-            SRPTextBox.Text = PriceManager.GetSRPWithFallback();
+            PurchasePriceTextBox.Text = _priceManager.GetPurchasePriceWithFallback();
+            SRPTextBox.Text = _priceManager.GetSRPWithFallback();
 
             #endregion
 
             #region Plugin Prices
 
-            OriginalPriceTextBox.Text = PriceManager.GetOriginalPriceWithFallback();
-            ShippingCostTextBox.Text = PriceManager.GetShippingCostWithFallback();
-            CreditCardChargeTextBox.Text = PriceManager.GetCreditCardChargeWithFallback();
-            CreditCardFeesTextBox.Text = PriceManager.GetCreditCardFeesWithFallback();
-            DiscountTextBox.Text = PriceManager.GetDiscountWithFallback();
-            CustomsFeesTextBox.Text = PriceManager.GetCustomsFeesWithFallback();
-            CouponTypeComboBox.Text = TextManager.GetCouponTypeWithFallback();
-            CouponCodeTextBox.Text = TextManager.GetCouponCodeWithFallback();
-            AdditionalPrice1TextBox.Text = PriceManager.GetAdditionalPrice1WithFallback();
-            AdditionalPrice2TextBox.Text = PriceManager.GetAdditionalPrice2WithFallback();
+            OriginalPriceTextBox.Text = _priceManager.GetOriginalPriceWithFallback();
+            ShippingCostTextBox.Text = _priceManager.GetShippingCostWithFallback();
+            CreditCardChargeTextBox.Text = _priceManager.GetCreditCardChargeWithFallback();
+            CreditCardFeesTextBox.Text = _priceManager.GetCreditCardFeesWithFallback();
+            DiscountTextBox.Text = _priceManager.GetDiscountWithFallback();
+            CustomsFeesTextBox.Text = _priceManager.GetCustomsFeesWithFallback();
+            CouponTypeComboBox.Text = _textManager.GetCouponTypeWithFallback();
+            CouponCodeTextBox.Text = _textManager.GetCouponCodeWithFallback();
+            AdditionalPrice1TextBox.Text = _priceManager.GetAdditionalPrice1WithFallback();
+            AdditionalPrice2TextBox.Text = _priceManager.GetAdditionalPrice2WithFallback();
 
             #endregion
 
@@ -320,176 +312,158 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             #endregion
         }
 
-        private void OnSaveButtonClick(Object sender, EventArgs e)
+        private void OnSaveButtonClick(object sender, EventArgs e)
         {
-            String couponType;
-
             #region Invelos Prices
 
-            if (FullEdit)
+            if (_fullEdit)
             {
-                PriceManager.SetPurchasePriceCurrency(GetCurrencyInfo(PurchasePriceComboBox));
-                PriceManager.SetPurchasePrice(PurchasePriceTextBox.Text);
+                _priceManager.SetPurchasePriceCurrency(GetCurrencyInfo(PurchasePriceComboBox));
+                _priceManager.SetPurchasePrice(PurchasePriceTextBox.Text);
 
-                PriceManager.SetSRPCurrency(GetCurrencyInfo(SRPComboBox));
-                PriceManager.SetSRP(SRPTextBox.Text);
+                _priceManager.SetSRPCurrency(GetCurrencyInfo(SRPComboBox));
+                _priceManager.SetSRP(SRPTextBox.Text);
             }
 
             #endregion
 
             #region Plugin Prices
 
-            PriceManager.SetOriginalPrice(OriginalPriceTextBox.Text);
-            PriceManager.SetOriginalPriceCurrency(GetCurrencyInfo(OriginalPriceComboBox));
+            _priceManager.SetOriginalPrice(OriginalPriceTextBox.Text);
+            _priceManager.SetOriginalPriceCurrency(GetCurrencyInfo(OriginalPriceComboBox));
 
-            PriceManager.SetShippingCost(ShippingCostTextBox.Text);
-            PriceManager.SetShippingCostCurrency(GetCurrencyInfo(ShippingCostComboBox));
+            _priceManager.SetShippingCost(ShippingCostTextBox.Text);
+            _priceManager.SetShippingCostCurrency(GetCurrencyInfo(ShippingCostComboBox));
 
-            PriceManager.SetCreditCardCharge(CreditCardChargeTextBox.Text);
-            PriceManager.SetCreditCardChargeCurrency(GetCurrencyInfo(CreditCardChargeComboBox));
+            _priceManager.SetCreditCardCharge(CreditCardChargeTextBox.Text);
+            _priceManager.SetCreditCardChargeCurrency(GetCurrencyInfo(CreditCardChargeComboBox));
 
-            PriceManager.SetCreditCardFees(CreditCardFeesTextBox.Text);
-            PriceManager.SetCreditCardFeesCurrency(GetCurrencyInfo(CreditCardFeesComboBox));
+            _priceManager.SetCreditCardFees(CreditCardFeesTextBox.Text);
+            _priceManager.SetCreditCardFeesCurrency(GetCurrencyInfo(CreditCardFeesComboBox));
 
-            PriceManager.SetDiscount(DiscountTextBox.Text);
-            PriceManager.SetDiscountCurrency(GetCurrencyInfo(DiscountComboBox));
+            _priceManager.SetDiscount(DiscountTextBox.Text);
+            _priceManager.SetDiscountCurrency(GetCurrencyInfo(DiscountComboBox));
 
-            PriceManager.SetCustomsFees(CustomsFeesTextBox.Text);
-            PriceManager.SetCustomsFeesCurrency(GetCurrencyInfo(CustomsFeesComboBox));
+            _priceManager.SetCustomsFees(CustomsFeesTextBox.Text);
+            _priceManager.SetCustomsFeesCurrency(GetCurrencyInfo(CustomsFeesComboBox));
 
-            if (TextManager.GetCouponType(out couponType))
+            if (_textManager.GetCouponType(out var couponType))
             {
-                UInt16 count;
-
-                if (Plugin.CouponTypes.TryGetValue(couponType, out count))
+                if (_plugin.CouponTypes.TryGetValue(couponType, out var count))
                 {
                     count--;
+
                     if (count == 0)
                     {
-                        Plugin.CouponTypes.Remove(couponType);
+                        _plugin.CouponTypes.Remove(couponType);
                     }
                     else
                     {
-                        Plugin.CouponTypes[couponType] = count;
+                        _plugin.CouponTypes[couponType] = count;
                     }
                 }
             }
-            TextManager.SetCouponType(CouponTypeComboBox.Text);
-            if (TextManager.GetCouponType(out couponType))
-            {
-                UInt16 count;
 
-                if (Plugin.CouponTypes.TryGetValue(couponType, out count))
+            _textManager.SetCouponType(CouponTypeComboBox.Text);
+
+            if (_textManager.GetCouponType(out couponType))
+            {
+                if (_plugin.CouponTypes.TryGetValue(couponType, out var count))
                 {
                     count++;
-                    Plugin.CouponTypes[couponType] = count;
+
+                    _plugin.CouponTypes[couponType] = count;
                 }
                 else
                 {
-                    Plugin.CouponTypes.Add(couponType, 1);
+                    _plugin.CouponTypes.Add(couponType, 1);
                 }
             }
-            TextManager.SetCouponCode(CouponCodeTextBox.Text);
 
-            PriceManager.SetAdditionalPrice1(AdditionalPrice1TextBox.Text);
-            PriceManager.SetAdditionalPrice1Currency(GetCurrencyInfo(AdditionalPrice1ComboBox));
+            _textManager.SetCouponCode(CouponCodeTextBox.Text);
 
-            PriceManager.SetAdditionalPrice2(AdditionalPrice2TextBox.Text);
-            PriceManager.SetAdditionalPrice2Currency(GetCurrencyInfo(AdditionalPrice2ComboBox));
+            _priceManager.SetAdditionalPrice1(AdditionalPrice1TextBox.Text);
+            _priceManager.SetAdditionalPrice1Currency(GetCurrencyInfo(AdditionalPrice1ComboBox));
+
+            _priceManager.SetAdditionalPrice2(AdditionalPrice2TextBox.Text);
+            _priceManager.SetAdditionalPrice2Currency(GetCurrencyInfo(AdditionalPrice2ComboBox));
 
             #endregion
 
             #region Invelos Dates
 
-
-            if (FullEdit)
+            if (_fullEdit)
             {
-                DateManager.SetPurchaseDate(GetDate(PurchaseDatePicker));
+                _dateManager.SetPurchaseDate(GetDate(PurchaseDatePicker));
             }
 
             #endregion
 
             #region Plugin Dates
 
-            DateManager.SetOrderDate(GetDate(OrderDatePicker));
-            DateManager.SetShippingDate(GetDate(ShippingDatePicker));
-            DateManager.SetDeliveryDate(GetDate(DeliveryDatePicker));
-            DateManager.SetAdditionalDate1(GetDate(AdditionalDate1Picker));
-            DateManager.SetAdditionalDate2(GetDate(AdditionalDate2Picker));
+            _dateManager.SetOrderDate(GetDate(OrderDatePicker));
+            _dateManager.SetShippingDate(GetDate(ShippingDatePicker));
+            _dateManager.SetDeliveryDate(GetDate(DeliveryDatePicker));
+            _dateManager.SetAdditionalDate1(GetDate(AdditionalDate1Picker));
+            _dateManager.SetAdditionalDate2(GetDate(AdditionalDate2Picker));
 
             #endregion
 
-            if (FullEdit)
+            if (_fullEdit)
             {
-                Plugin.Api.SaveDVDToCollection(Profile);
+                _plugin.Api.SaveDVDToCollection(_profile);
             }
 
-            Plugin.Api.ReloadCurrentDVD();
+            _plugin.Api.ReloadCurrentDVD();
 
             DialogResult = DialogResult.OK;
 
-            DataChanged = false;
+            _dataChanged = false;
 
             Close();
         }
 
-        private DateTime GetDate(DateTimePicker picker)
-        {
-            DateTime date;
+        private DateTime GetDate(DateTimePicker picker) => picker.Checked == false ? DateManager._dateNotSet : picker.Value;
 
-            if (picker.Checked == false)
-            {
-                date = DateManager.DateNotSet;
-            }
-            else
-            {
-                date = picker.Value;
-            }
-            return (date);
-        }
-
-        private void OnDiscardButtonClick(Object sender, EventArgs e)
+        private void OnDiscardButtonClick(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
+
             Close();
         }
 
         private CurrencyInfo GetCurrencyInfo(ComboBox comboBox)
         {
-            CurrencyInfo ci;
-
             if (comboBox.SelectedIndex == -1)
             {
-                ci = CurrencyInfo.Empty;
+                return CurrencyInfo.Empty;
             }
             else
             {
-                KeyValuePair<String, CurrencyInfo> kvp;
+                var kvp = (KeyValuePair<string, CurrencyInfo>)(comboBox.SelectedItem);
 
-                kvp = (KeyValuePair<String, CurrencyInfo>)(comboBox.SelectedItem);
-                ci = kvp.Value;
+                return kvp.Value;
             }
-            return (ci);
         }
 
         private void ValidatePrice(TextBox textBox, ComboBox comboBox)
         {
-            if (String.IsNullOrEmpty(textBox.Text) == false)
+            if (string.IsNullOrEmpty(textBox.Text) == false)
             {
-                Decimal price;
-
-                if (Decimal.TryParse(textBox.Text, NumberStyles.Float, CultureInfo.CurrentCulture, out price) == false)
+                if (decimal.TryParse(textBox.Text, NumberStyles.Float, CultureInfo.CurrentCulture, out var price) == false)
                 {
-                    String text;
+                    var text = string.Format(MessageBoxTexts.InvalidPrice, (12.34m).ToString("F2", CultureInfo.CurrentCulture));
 
-                    text = String.Format(MessageBoxTexts.InvalidPrice, (12.34m).ToString("F2", CultureInfo.CurrentCulture));
                     MessageBox.Show(text, MessageBoxTexts.InvalidPriceHeader, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
                     textBox.Focus();
                 }
-                textBox.Text = PriceManager.GetFormattedPriceString(price);
+
+                textBox.Text = _priceManager.GetFormattedPriceString(price);
+
                 if (comboBox.SelectedIndex == -1)
                 {
-                    comboBox.Text = Plugin.DefaultCurrency.Name;
+                    comboBox.Text = _plugin.DefaultCurrency.Name;
                 }
             }
             else
@@ -500,65 +474,35 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #region Invelos Prices
 
-        private void OnPurchasePriceTextBoxLeave(Object sender, EventArgs e)
-        {
-            ValidatePrice(PurchasePriceTextBox, PurchasePriceComboBox);
-        }
+        private void OnPurchasePriceTextBoxLeave(object sender, EventArgs e) => ValidatePrice(PurchasePriceTextBox, PurchasePriceComboBox);
 
-        private void OnSRPTextBoxLeave(Object sender, EventArgs e)
-        {
-            ValidatePrice(SRPTextBox, SRPComboBox);
-        }
+        private void OnSRPTextBoxLeave(object sender, EventArgs e) => ValidatePrice(SRPTextBox, SRPComboBox);
 
         #endregion
 
         #region Plugin Prices
 
-        private void OnOriginalPriceTextBoxLeave(Object sender, EventArgs e)
-        {
-            ValidatePrice(OriginalPriceTextBox, OriginalPriceComboBox);
-        }
+        private void OnOriginalPriceTextBoxLeave(object sender, EventArgs e) => ValidatePrice(OriginalPriceTextBox, OriginalPriceComboBox);
 
-        private void OnShippingCostTextBoxLeave(Object sender, EventArgs e)
-        {
-            ValidatePrice(ShippingCostTextBox, ShippingCostComboBox);
-        }
+        private void OnShippingCostTextBoxLeave(object sender, EventArgs e) => ValidatePrice(ShippingCostTextBox, ShippingCostComboBox);
 
-        private void OnCreditCardChargeTextBoxLeave(Object sender, EventArgs e)
-        {
-            ValidatePrice(CreditCardChargeTextBox, CreditCardChargeComboBox);
-        }
+        private void OnCreditCardChargeTextBoxLeave(object sender, EventArgs e) => ValidatePrice(CreditCardChargeTextBox, CreditCardChargeComboBox);
 
-        private void OnCreditCardFeesTextBoxLeave(Object sender, EventArgs e)
-        {
-            ValidatePrice(CreditCardFeesTextBox, CreditCardFeesComboBox);
-        }
+        private void OnCreditCardFeesTextBoxLeave(object sender, EventArgs e) => ValidatePrice(CreditCardFeesTextBox, CreditCardFeesComboBox);
 
-        private void OnDiscountTextBoxLeave(Object sender, EventArgs e)
-        {
-            ValidatePrice(DiscountTextBox, DiscountComboBox);
-        }
+        private void OnDiscountTextBoxLeave(object sender, EventArgs e) => ValidatePrice(DiscountTextBox, DiscountComboBox);
 
-        private void OnCustomsFeesTextBoxLeave(Object sender, EventArgs e)
-        {
-            ValidatePrice(CustomsFeesTextBox, CustomsFeesComboBox);
-        }
+        private void OnCustomsFeesTextBoxLeave(object sender, EventArgs e) => ValidatePrice(CustomsFeesTextBox, CustomsFeesComboBox);
 
-        private void OnAdditionalPrice1TextBoxLeave(Object sender, EventArgs e)
-        {
-            ValidatePrice(AdditionalPrice1TextBox, AdditionalPrice1ComboBox);
-        }
+        private void OnAdditionalPrice1TextBoxLeave(object sender, EventArgs e) => ValidatePrice(AdditionalPrice1TextBox, AdditionalPrice1ComboBox);
 
-        private void OnAdditionalPrice2TextBoxLeave(Object sender, EventArgs e)
-        {
-            ValidatePrice(AdditionalPrice2TextBox, AdditionalPrice2ComboBox);
-        }
+        private void OnAdditionalPrice2TextBoxLeave(object sender, EventArgs e) => ValidatePrice(AdditionalPrice2TextBox, AdditionalPrice2ComboBox);
 
         #endregion
 
-        private void OnOptionsToolStripMenuItemClick(Object sender, EventArgs e)
+        private void OnOptionsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            using (SettingsForm form = new SettingsForm(Plugin))
+            using (var form = new SettingsForm(_plugin))
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
@@ -567,28 +511,28 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        private void OnAboutToolStripMenuItemClick(Object sender, EventArgs e)
+        private void OnAboutToolStripMenuItemClick(object sender, EventArgs e)
         {
-            using (AboutBox aboutBox = new AboutBox(GetType().Assembly))
+            using (var aboutBox = new AboutBox(GetType().Assembly))
             {
                 aboutBox.ShowDialog();
             }
         }
 
-        private void OnCheckForUpdatesToolStripMenuItemClick(Object sender, EventArgs e)
+        private void OnCheckForUpdatesToolStripMenuItemClick(object sender, EventArgs e)
         {
             OnlineAccess.Init("Doena Soft.", "EnhancedPurchaseInfo");
-            OnlineAccess.CheckForNewVersion("http://doena-soft.de/dvdprofiler/3.9.5/versions.xml", this, "EnhancedPurchaseInfo", this.GetType().Assembly);
+            OnlineAccess.CheckForNewVersion("http://doena-soft.de/dvdprofiler/3.9.5/versions.xml", this, "EnhancedPurchaseInfo", GetType().Assembly);
         }
 
-        private void OnDataChanged(Object sender, EventArgs e)
+        private void OnDataChanged(object sender, EventArgs e)
         {
-            DataChanged = true;
+            _dataChanged = true;
         }
 
-        private void OnFormClosing(Object sender, FormClosingEventArgs e)
+        private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
-            if (DataChanged)
+            if (_dataChanged)
             {
                 if (MessageBox.Show(MessageBoxTexts.AbandonChangesText, MessageBoxTexts.AbandonChangesHeader, MessageBoxButtons.YesNo
                     , MessageBoxIcon.Question) == DialogResult.No)
@@ -598,31 +542,32 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        private void OnExportToXMLToolStripMenuItemClick(Object sender, EventArgs e)
+        private void OnExportToXMLToolStripMenuItemClick(object sender, EventArgs e)
         {
-            using (SaveFileDialog sfd = new SaveFileDialog())
+            using (var sfd = new SaveFileDialog()
             {
-                sfd.AddExtension = true;
-                sfd.DefaultExt = ".xml";
-                sfd.Filter = "XML files|*.xml";
-                sfd.OverwritePrompt = true;
-                sfd.RestoreDirectory = true;
-                sfd.Title = Texts.SaveXmlFile;
-                sfd.FileName = "EnhancedPurchaseInfo." + Profile.GetProfileID() + ".xml";
+                AddExtension = true,
+                DefaultExt = ".xml",
+                Filter = "XML files|*.xml",
+                OverwritePrompt = true,
+                RestoreDirectory = true,
+                Title = Texts.SaveXmlFile,
+                FileName = "EnhancedPurchaseInfo." + _profile.GetProfileID() + ".xml",
+            })
+            {
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    EnhancedPurchaseInfo epi;
-
-                    epi = GetEnhancedPurchaseInfoForXmlStructure();
+                    var epi = GetEnhancedPurchaseInfoForXmlStructure();
 
                     try
                     {
                         epi.Serialize(sfd.FileName);
+
                         MessageBox.Show(MessageBoxTexts.Done, MessageBoxTexts.InformationHeader, MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(String.Format(MessageBoxTexts.FileCantBeWritten, sfd.FileName, ex.Message)
+                        MessageBox.Show(string.Format(MessageBoxTexts.FileCantBeWritten, sfd.FileName, ex.Message)
                             , MessageBoxTexts.ErrorHeader, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
@@ -631,43 +576,47 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         private EnhancedPurchaseInfo GetEnhancedPurchaseInfoForXmlStructure()
         {
-            EnhancedPurchaseInfo epi;
-            DefaultValues dv;
+            var dv = _plugin.Settings.DefaultValues;
 
-            dv = Plugin.Settings.DefaultValues;
-            epi = new EnhancedPurchaseInfo();
+            var epi = new EnhancedPurchaseInfo()
+            {
+                #region Prices
 
-            #region Prices
+                OriginalPrice = GetXmlPrice(OriginalPriceTextBox, OriginalPriceComboBox, dv.OriginalPriceLabel),
+                ShippingCost = GetXmlPrice(ShippingCostTextBox, ShippingCostComboBox, dv.ShippingCostLabel),
+                CreditCardCharge = GetXmlPrice(CreditCardChargeTextBox, CreditCardChargeComboBox, dv.CreditCardChargeLabel),
+                CreditCardFees = GetXmlPrice(CreditCardFeesTextBox, CreditCardFeesComboBox, dv.CreditCardFeesLabel),
+                Discount = GetXmlPrice(DiscountTextBox, DiscountComboBox, dv.DiscountLabel),
+                CustomsFees = GetXmlPrice(CustomsFeesTextBox, CustomsFeesComboBox, dv.CustomsFeesLabel),
+                CouponType = GetXmlText(CouponTypeComboBox, dv.CouponTypeLabel),
+                CouponCode = GetXmlText(CouponCodeTextBox, dv.CouponCodeLabel),
+                AdditionalPrice1 = GetXmlPrice(AdditionalPrice1TextBox, AdditionalPrice1ComboBox, dv.AdditionalPrice1Label),
+                AdditionalPrice2 = GetXmlPrice(AdditionalPrice2TextBox, AdditionalPrice2ComboBox, dv.AdditionalPrice2Label),
 
-            epi.OriginalPrice = GetXmlPrice(OriginalPriceTextBox, OriginalPriceComboBox, dv.OriginalPriceLabel);
-            epi.ShippingCost = GetXmlPrice(ShippingCostTextBox, ShippingCostComboBox, dv.ShippingCostLabel);
-            epi.CreditCardCharge = GetXmlPrice(CreditCardChargeTextBox, CreditCardChargeComboBox, dv.CreditCardChargeLabel);
-            epi.CreditCardFees = GetXmlPrice(CreditCardFeesTextBox, CreditCardFeesComboBox, dv.CreditCardFeesLabel);
-            epi.Discount = GetXmlPrice(DiscountTextBox, DiscountComboBox, dv.DiscountLabel);
-            epi.CustomsFees = GetXmlPrice(CustomsFeesTextBox, CustomsFeesComboBox, dv.CustomsFeesLabel);
-            epi.CouponType = GetXmlText(CouponTypeComboBox, dv.CouponTypeLabel);
-            epi.CouponCode = GetXmlText(CouponCodeTextBox, dv.CouponCodeLabel);
-            epi.AdditionalPrice1 = GetXmlPrice(AdditionalPrice1TextBox, AdditionalPrice1ComboBox, dv.AdditionalPrice1Label);
-            epi.AdditionalPrice2 = GetXmlPrice(AdditionalPrice2TextBox, AdditionalPrice2ComboBox, dv.AdditionalPrice2Label);
+                #endregion
 
-            #endregion
+                #region Dates
 
-            #region Dates
+                OrderDate = GetXmlDate(OrderDatePicker, dv.OrderDateLabel),
+                ShippingDate = GetXmlDate(ShippingDatePicker, dv.ShippingDateLabel),
+                DeliveryDate = GetXmlDate(DeliveryDatePicker, dv.DeliveryDateLabel),
+                AdditionalDate1 = GetXmlDate(AdditionalDate1Picker, dv.AdditionalDate1Label),
+                AdditionalDate2 = GetXmlDate(AdditionalDate2Picker, dv.AdditionalDate2Label),
 
-            epi.OrderDate = GetXmlDate(OrderDatePicker, dv.OrderDateLabel);
-            epi.ShippingDate = GetXmlDate(ShippingDatePicker, dv.ShippingDateLabel);
-            epi.DeliveryDate = GetXmlDate(DeliveryDatePicker, dv.DeliveryDateLabel);
-            epi.AdditionalDate1 = GetXmlDate(AdditionalDate1Picker, dv.AdditionalDate1Label);
-            epi.AdditionalDate2 = GetXmlDate(AdditionalDate2Picker, dv.AdditionalDate2Label);
+                #endregion
 
-            #endregion
+                #region Invelos Data
+
+                InvelosData = new InvelosData()
+                {
+                    PurchasePrice = GetXmlPrice(PurchasePriceTextBox, PurchasePriceComboBox, null),
+                    SRP = GetXmlPrice(SRPTextBox, SRPComboBox, null),
+                }
+
+                #endregion
+            };
 
             #region Invelos Data
-
-            epi.InvelosData = new InvelosData();
-
-            epi.InvelosData.PurchasePrice = GetXmlPrice(PurchasePriceTextBox, PurchasePriceComboBox, null);
-            epi.InvelosData.SRP = GetXmlPrice(SRPTextBox, SRPComboBox, null);
 
             if (PurchaseDatePicker.Checked)
             {
@@ -677,81 +626,82 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
             #endregion
 
-            return (epi);
+            return epi;
         }
 
-        private Text GetXmlText(Control textControl
-            , String displayName)
+        private Text GetXmlText(Control textControl, string displayName)
         {
-            if (String.IsNullOrEmpty(textControl.Text))
+            if (string.IsNullOrEmpty(textControl.Text))
             {
-                return (null);
+                return null;
             }
             else
             {
-                Text text;
+                var text = new Text()
+                {
+                    Value = textControl.Text,
+                    DisplayName = displayName,
+                };
 
-                text = new Text();
-                text.Value = textControl.Text;
-                text.DisplayName = displayName;
-                return (text);
+                return text;
             }
         }
 
-        private Date GetXmlDate(DateTimePicker datePicker
-            , String displayName)
+        private Date GetXmlDate(DateTimePicker datePicker, string displayName)
         {
-            Date date;
-
             if (datePicker.Checked)
             {
-                date = new Date();
-                date.Value = datePicker.Value;
-                date.DisplayName = displayName;
+                var date = new Date()
+                {
+                    Value = datePicker.Value,
+                    DisplayName = displayName,
+                };
+
+                return date;
             }
             else
             {
-                date = null;
+                return null;
             }
-            return (date);
         }
 
-        private Price GetXmlPrice(TextBox textBox
-            , ComboBox comboBox
-            , String displayName)
+        private Price GetXmlPrice(TextBox textBox, ComboBox comboBox, string displayName)
         {
-            Decimal price;
-            Price xmlPrice;
-
-            xmlPrice = null;
-            if (PriceManager.GetPriceFromText(textBox.Text, out price))
+            if (PriceManager.GetPriceFromText(textBox.Text, out var price))
             {
-                CurrencyInfo ci;
+                var ci = GetCurrencyInfo(comboBox);
 
-                xmlPrice = new Price();
-                xmlPrice.Value = Convert.ToSingle(price);
-                ci = GetCurrencyInfo(comboBox);
-                xmlPrice.DenominationType = ci.Type;
-                xmlPrice.DenominationDesc = ci.Name;
-                xmlPrice.FormattedValue = ci.GetFormattedValue(price);
-                xmlPrice.DisplayName = displayName;
+                var xmlPrice = new Price()
+                {
+                    Value = Convert.ToSingle(price),
+                    DenominationType = ci.Type,
+                    DenominationDesc = ci.Name,
+                    FormattedValue = ci.GetFormattedValue(price),
+                    DisplayName = displayName,
+                };
+
+                return xmlPrice;
             }
-            return (xmlPrice);
+            else
+            {
+                return null;
+            }
         }
 
-        private void OnImportFromXMLToolStripMenuItemClick(Object sender, EventArgs e)
+        private void OnImportFromXMLToolStripMenuItemClick(object sender, EventArgs e)
         {
-            using (OpenFileDialog ofd = new OpenFileDialog())
+            using (var ofd = new OpenFileDialog()
             {
-                ofd.CheckFileExists = true;
-                ofd.Filter = "XML files|*.xml";
-                ofd.Multiselect = false;
-                ofd.RestoreDirectory = true;
-                ofd.Title = Texts.LoadXmlFile;
+                CheckFileExists = true,
+                Filter = "XML files|*.xml",
+                Multiselect = false,
+                RestoreDirectory = true,
+                Title = Texts.LoadXmlFile,
+            })
+            {
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     EnhancedPurchaseInfo epi;
-
                     try
                     {
                         epi = EnhancedPurchaseInfo.Deserialize(ofd.FileName);
@@ -759,15 +709,14 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                     catch (Exception ex)
                     {
                         epi = null;
-                        MessageBox.Show(String.Format(MessageBoxTexts.FileCantBeRead, ofd.FileName, ex.Message)
+
+                        MessageBox.Show(string.Format(MessageBoxTexts.FileCantBeRead, ofd.FileName, ex.Message)
                            , MessageBoxTexts.ErrorHeader, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
 
                     if (epi != null)
                     {
-                        Dictionary<String, CurrencyInfo> inverse;
-
-                        inverse = GetInverseCurrencyInfo();
+                        var inverse = GetInverseCurrencyInfo();
 
                         SetEnhancedPurchaseInfoFromXmlStructure(epi, inverse);
                     }
@@ -775,8 +724,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        private void SetEnhancedPurchaseInfoFromXmlStructure(EnhancedPurchaseInfo epi
-            , Dictionary<String, CurrencyInfo> inverse)
+        private void SetEnhancedPurchaseInfoFromXmlStructure(EnhancedPurchaseInfo epi, Dictionary<string, CurrencyInfo> inverse)
         {
             #region Prices
 
@@ -804,20 +752,19 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             #endregion
         }
 
-        private Dictionary<String, CurrencyInfo> GetInverseCurrencyInfo()
+        private Dictionary<string, CurrencyInfo> GetInverseCurrencyInfo()
         {
-            Dictionary<String, CurrencyInfo> inverse;
+            var inverse = new Dictionary<string, CurrencyInfo>(_plugin.Currencies.Count);
 
-            inverse = new Dictionary<String, CurrencyInfo>(Plugin.Currencies.Count);
-            foreach (CurrencyInfo ci in Plugin.Currencies.Values)
+            foreach (var ci in _plugin.Currencies.Values)
             {
                 inverse.Add(ci.Type, ci);
             }
+
             return inverse;
         }
 
-        private static void SetDate(Date date
-            , DateTimePicker datePicker)
+        private static void SetDate(Date date, DateTimePicker datePicker)
         {
             if (date != null)
             {
@@ -830,69 +777,56 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        private void SetText(Control textControl
-        , Text text)
+        private void SetText(Control textControl, Text text)
         {
-            if ((text != null) && (text.Value != null))
-            {
-                textControl.Text = text.Value;
-            }
-            else
-            {
-                textControl.Text = String.Empty;
-            }
+            textControl.Text = text != null && text.Value != null
+                ? text.Value
+                : string.Empty;
         }
 
-        private void SetPrice(Dictionary<String, CurrencyInfo> inverse
-            , TextBox textBox
-            , ComboBox comboBox
-            , Price xmlPrice)
+        private void SetPrice(Dictionary<string, CurrencyInfo> inverse, TextBox textBox, ComboBox comboBox, Price xmlPrice)
         {
             if (xmlPrice != null)
             {
-                Decimal price;
+                var price = Convert.ToDecimal(xmlPrice.Value);
 
-                price = Convert.ToDecimal(xmlPrice.Value);
-                textBox.Text = PriceManager.GetFormattedPriceString(price);
+                textBox.Text = _priceManager.GetFormattedPriceString(price);
+
                 comboBox.Text = inverse[xmlPrice.DenominationType].Name;
             }
             else
             {
-                textBox.Text = String.Empty;
+                textBox.Text = string.Empty;
+
                 comboBox.SelectedIndex = -1;
             }
         }
 
-        private void OnImportOptionsToolStripMenuItemClick(Object sender, EventArgs e)
+        private void OnImportOptionsToolStripMenuItemClick(object sender, EventArgs e)
         {
-            Plugin.ImportOptions();
+            _plugin.ImportOptions();
+
             SetLabels();
         }
 
-        private void OnExportOptionsToolStripMenuItemClick(Object sender, EventArgs e)
-        {
-            Plugin.ExportOptions();
-        }
+        private void OnExportOptionsToolStripMenuItemClick(object sender, EventArgs e) => _plugin.ExportOptions();
 
-        private void OnShippingCostCalculatorToolStripMenuItemClick(Object sender, EventArgs e)
+        private void OnShippingCostCalculatorToolStripMenuItemClick(object sender, EventArgs e)
         {
-            EventHandler eventHandler;
+            var eventHandler = OpenCalculator;
 
-            eventHandler = OpenCalculator;
             if (eventHandler != null)
             {
                 eventHandler(this, EventArgs.Empty);
             }
         }
 
-        private void OnCopyAllToolStripMenuItemClick(Object sender, EventArgs e)
+        private void OnCopyAllToolStripMenuItemClick(object sender, EventArgs e)
         {
-            EnhancedPurchaseInfo epi;
-            String xml;
+            var epi = GetEnhancedPurchaseInfoForXmlStructure();
 
-            epi = GetEnhancedPurchaseInfoForXmlStructure();
-
-            using (Utf8StringWriter sw = new Utf8StringWriter())
+            string xml;
+            using (var sw = new Utf8StringWriter())
             {
                 EnhancedPurchaseInfo.XmlSerializer.Serialize(sw, epi);
 
@@ -910,17 +844,14 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        private void OnPasteAllToolStripMenuItemClick(Object sender, EventArgs e)
+        private void OnPasteAllToolStripMenuItemClick(object sender, EventArgs e)
         {
             EnhancedPurchaseInfo epi;
-
             try
             {
-                String xml;
+                var xml = Clipboard.GetText();
 
-                xml = Clipboard.GetText();
-
-                using (StringReader sr = new StringReader(xml))
+                using (var sr = new StringReader(xml))
                 {
                     epi = (EnhancedPurchaseInfo)(EnhancedPurchaseInfo.XmlSerializer.Deserialize(sr));
                 }
@@ -928,15 +859,14 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             catch
             {
                 epi = null;
+
                 MessageBox.Show(MessageBoxTexts.PasteFromClipboardFailed, MessageBoxTexts.ErrorHeader
                     , MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
 
             if (epi != null)
             {
-                Dictionary<String, CurrencyInfo> inverse;
-
-                inverse = GetInverseCurrencyInfo();
+                var inverse = GetInverseCurrencyInfo();
 
                 SetEnhancedPurchaseInfoFromXmlStructure(epi, inverse);
 
@@ -944,10 +874,9 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
             }
         }
 
-        private void SetStandardPurchaseInfo(EnhancedPurchaseInfo epi
-            , Dictionary<String, CurrencyInfo> inverse)
+        private void SetStandardPurchaseInfo(EnhancedPurchaseInfo epi, Dictionary<string, CurrencyInfo> inverse)
         {
-            if (FullEdit == false)
+            if (_fullEdit == false)
             {
                 return;
             }
