@@ -85,6 +85,9 @@
             this.PurchaseDateLabel = new System.Windows.Forms.Label();
             this.PurchaseDatePicker = new System.Windows.Forms.DateTimePicker();
             this.MainMenu = new System.Windows.Forms.MenuStrip();
+            this.EditToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CopyAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.PasteAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ShippingCostCalculatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.OptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -95,9 +98,6 @@
             this.HelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CheckForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.EditToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.CopyAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.PasteAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MainTabControl.SuspendLayout();
             this.PricesTabPage.SuspendLayout();
             this.PricesPluginDataGroupBox.SuspendLayout();
@@ -113,7 +113,7 @@
             this.SaveButton.Location = new System.Drawing.Point(214, 459);
             this.SaveButton.Name = "SaveButton";
             this.SaveButton.Size = new System.Drawing.Size(75, 23);
-            this.SaveButton.TabIndex = 1;
+            this.SaveButton.TabIndex = 2;
             this.SaveButton.Text = "Save";
             this.SaveButton.UseVisualStyleBackColor = true;
             this.SaveButton.Click += new System.EventHandler(this.OnSaveButtonClick);
@@ -124,7 +124,7 @@
             this.DiscardButton.Location = new System.Drawing.Point(295, 459);
             this.DiscardButton.Name = "DiscardButton";
             this.DiscardButton.Size = new System.Drawing.Size(75, 23);
-            this.DiscardButton.TabIndex = 2;
+            this.DiscardButton.TabIndex = 3;
             this.DiscardButton.Text = "Cancel";
             this.DiscardButton.UseVisualStyleBackColor = true;
             this.DiscardButton.Click += new System.EventHandler(this.OnDiscardButtonClick);
@@ -137,7 +137,7 @@
             this.MainTabControl.Name = "MainTabControl";
             this.MainTabControl.SelectedIndex = 0;
             this.MainTabControl.Size = new System.Drawing.Size(362, 426);
-            this.MainTabControl.TabIndex = 0;
+            this.MainTabControl.TabIndex = 1;
             // 
             // PricesTabPage
             // 
@@ -184,7 +184,7 @@
             this.PricesPluginDataGroupBox.Location = new System.Drawing.Point(6, 94);
             this.PricesPluginDataGroupBox.Name = "PricesPluginDataGroupBox";
             this.PricesPluginDataGroupBox.Size = new System.Drawing.Size(332, 294);
-            this.PricesPluginDataGroupBox.TabIndex = 0;
+            this.PricesPluginDataGroupBox.TabIndex = 1;
             this.PricesPluginDataGroupBox.TabStop = false;
             // 
             // CouponTypeComboBox
@@ -194,7 +194,7 @@
             this.CouponTypeComboBox.MaxLength = 100;
             this.CouponTypeComboBox.Name = "CouponTypeComboBox";
             this.CouponTypeComboBox.Size = new System.Drawing.Size(206, 21);
-            this.CouponTypeComboBox.TabIndex = 28;
+            this.CouponTypeComboBox.TabIndex = 19;
             // 
             // CreditCardChargeComboBox
             // 
@@ -464,7 +464,7 @@
             this.PricesInvelosDataGroupBox.Location = new System.Drawing.Point(6, 6);
             this.PricesInvelosDataGroupBox.Name = "PricesInvelosDataGroupBox";
             this.PricesInvelosDataGroupBox.Size = new System.Drawing.Size(332, 82);
-            this.PricesInvelosDataGroupBox.TabIndex = 1;
+            this.PricesInvelosDataGroupBox.TabIndex = 0;
             this.PricesInvelosDataGroupBox.TabStop = false;
             // 
             // SRPComboBox
@@ -552,7 +552,7 @@
             this.DatesPluginDataGroupBox.Location = new System.Drawing.Point(6, 94);
             this.DatesPluginDataGroupBox.Name = "DatesPluginDataGroupBox";
             this.DatesPluginDataGroupBox.Size = new System.Drawing.Size(332, 294);
-            this.DatesPluginDataGroupBox.TabIndex = 0;
+            this.DatesPluginDataGroupBox.TabIndex = 1;
             this.DatesPluginDataGroupBox.TabStop = false;
             // 
             // AdditionalDate2Picker
@@ -672,7 +672,7 @@
             this.DatesInvelosDataGroupBox.Location = new System.Drawing.Point(6, 6);
             this.DatesInvelosDataGroupBox.Name = "DatesInvelosDataGroupBox";
             this.DatesInvelosDataGroupBox.Size = new System.Drawing.Size(332, 82);
-            this.DatesInvelosDataGroupBox.TabIndex = 1;
+            this.DatesInvelosDataGroupBox.TabIndex = 0;
             this.DatesInvelosDataGroupBox.TabStop = false;
             // 
             // PurchaseDateLabel
@@ -706,7 +706,30 @@
             this.MainMenu.Location = new System.Drawing.Point(0, 0);
             this.MainMenu.Name = "MainMenu";
             this.MainMenu.Size = new System.Drawing.Size(384, 24);
-            this.MainMenu.TabIndex = 3;
+            this.MainMenu.TabIndex = 0;
+            // 
+            // EditToolStripMenuItem
+            // 
+            this.EditToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.CopyAllToolStripMenuItem,
+            this.PasteAllToolStripMenuItem});
+            this.EditToolStripMenuItem.Name = "EditToolStripMenuItem";
+            this.EditToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
+            this.EditToolStripMenuItem.Text = "Edit";
+            // 
+            // CopyAllToolStripMenuItem
+            // 
+            this.CopyAllToolStripMenuItem.Name = "CopyAllToolStripMenuItem";
+            this.CopyAllToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.CopyAllToolStripMenuItem.Text = "Copy all";
+            this.CopyAllToolStripMenuItem.Click += new System.EventHandler(this.OnCopyAllToolStripMenuItemClick);
+            // 
+            // PasteAllToolStripMenuItem
+            // 
+            this.PasteAllToolStripMenuItem.Name = "PasteAllToolStripMenuItem";
+            this.PasteAllToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.PasteAllToolStripMenuItem.Text = "Paste all";
+            this.PasteAllToolStripMenuItem.Click += new System.EventHandler(this.OnPasteAllToolStripMenuItemClick);
             // 
             // ToolsToolStripMenuItem
             // 
@@ -718,7 +741,7 @@
             this.ExportOptionsToolStripMenuItem,
             this.ImportOptionsToolStripMenuItem});
             this.ToolsToolStripMenuItem.Name = "ToolsToolStripMenuItem";
-            this.ToolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.ToolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.ToolsToolStripMenuItem.Text = "&Tools";
             // 
             // ShippingCostCalculatorToolStripMenuItem
@@ -785,29 +808,6 @@
             this.AboutToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
             this.AboutToolStripMenuItem.Text = "&About";
             this.AboutToolStripMenuItem.Click += new System.EventHandler(this.OnAboutToolStripMenuItemClick);
-            // 
-            // EditToolStripMenuItem
-            // 
-            this.EditToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.CopyAllToolStripMenuItem,
-            this.PasteAllToolStripMenuItem});
-            this.EditToolStripMenuItem.Name = "EditToolStripMenuItem";
-            this.EditToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
-            this.EditToolStripMenuItem.Text = "Edit";
-            // 
-            // CopyAllToolStripMenuItem
-            // 
-            this.CopyAllToolStripMenuItem.Name = "CopyAllToolStripMenuItem";
-            this.CopyAllToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.CopyAllToolStripMenuItem.Text = "Copy all";
-            this.CopyAllToolStripMenuItem.Click += new System.EventHandler(this.OnCopyAllToolStripMenuItemClick);
-            // 
-            // PasteAllToolStripMenuItem
-            // 
-            this.PasteAllToolStripMenuItem.Name = "PasteAllToolStripMenuItem";
-            this.PasteAllToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.PasteAllToolStripMenuItem.Text = "Paste all";
-            this.PasteAllToolStripMenuItem.Click += new System.EventHandler(this.OnPasteAllToolStripMenuItemClick);
             // 
             // MainForm
             // 

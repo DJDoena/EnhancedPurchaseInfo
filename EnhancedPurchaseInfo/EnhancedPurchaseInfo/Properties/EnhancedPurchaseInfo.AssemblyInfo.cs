@@ -5,9 +5,9 @@ using System.Reflection;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Doena Soft.")]
 [assembly: AssemblyProduct("Enhanced Purchase Info")]
-[assembly: AssemblyCopyright("Copyright © Doena Soft. 2015 - 2021")]
+[assembly: AssemblyCopyright("Copyright © Doena Soft. 2015 - 2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: AssemblyVersion("1.1.3.7")]
-[assembly: AssemblyFileVersion("1.1.3.7")]
+[assembly: AssemblyVersion("1.1.3.8")]
+[assembly: AssemblyFileVersion("1.1.3.8")]

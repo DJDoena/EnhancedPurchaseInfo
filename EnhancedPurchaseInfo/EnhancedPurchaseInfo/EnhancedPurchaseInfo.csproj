@@ -159,6 +159,6 @@
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
-    <PostBuildEvent>"%25ProgramFiles%25\Inno Setup 6\iscc.exe"  ..\..\..\..\EnhancedPurchaseInfoSetup\Setup.iss</PostBuildEvent>
+    <PostBuildEvent>"%25ProgramFiles(x86)%25\Inno Setup 6\iscc.exe"  ..\..\..\..\EnhancedPurchaseInfoSetup\Setup.iss</PostBuildEvent>
   </PropertyGroup>
 </Project>
