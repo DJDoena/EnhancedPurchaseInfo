@@ -1,9 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\packages\DoenaSoft.ToolBox.1.0.7\build\net452\DoenaSoft.ToolBox.props" Condition="Exists('..\..\packages\DoenaSoft.ToolBox.1.0.7\build\net452\DoenaSoft.ToolBox.props')" />
-  <Import Project="..\..\packages\DoenaSoft.WindowsAPICodePack.1.1.1\build\net452\DoenaSoft.WindowsAPICodePack.props" Condition="Exists('..\..\packages\DoenaSoft.WindowsAPICodePack.1.1.1\build\net452\DoenaSoft.WindowsAPICodePack.props')" />
-  <Import Project="..\..\packages\DoenaSoft.EnhancedPurchaseInfo.Interface.1.1.2\build\net452\DoenaSoft.EnhancedPurchaseInfo.Interface.props" Condition="Exists('..\..\packages\DoenaSoft.EnhancedPurchaseInfo.Interface.1.1.2\build\net452\DoenaSoft.EnhancedPurchaseInfo.Interface.props')" />
-  <Import Project="..\..\packages\DoenaSoft.DVDProfilerHelper.2.2.9\build\net452\DoenaSoft.DVDProfilerHelper.props" Condition="Exists('..\..\packages\DoenaSoft.DVDProfilerHelper.2.2.9\build\net452\DoenaSoft.DVDProfilerHelper.props')" />
   <PropertyGroup>
     <ProjectType>Local</ProjectType>
     <ProductVersion>9.0.30729</ProductVersion>
@@ -114,7 +110,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="EnhancedPurchaseInfo.snk" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\MessageBoxTexts.resx">
@@ -139,20 +134,24 @@
       <LastGenOutput>Texts.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <PackageReference Include="DoenaSoft.DVDProfilerHelper">
+      <Version>2.2.9</Version>
+    </PackageReference>
+    <PackageReference Include="DoenaSoft.EnhancedPurchaseInfo.Interface">
+      <Version>1.1.2</Version>
+    </PackageReference>
+    <PackageReference Include="DoenaSoft.ToolBox">
+      <Version>1.0.7</Version>
+    </PackageReference>
+    <PackageReference Include="DoenaSoft.WindowsAPICodePack">
+      <Version>1.1.1</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
     <PostBuildEvent>"%25ProgramFiles(x86)%25\Inno Setup 6\iscc.exe"  ..\..\..\..\EnhancedPurchaseInfoSetup\Setup.iss</PostBuildEvent>
   </PropertyGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\DoenaSoft.DVDProfilerHelper.2.2.9\build\net452\DoenaSoft.DVDProfilerHelper.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\DoenaSoft.DVDProfilerHelper.2.2.9\build\net452\DoenaSoft.DVDProfilerHelper.props'))" />
-    <Error Condition="!Exists('..\..\packages\DoenaSoft.EnhancedPurchaseInfo.Interface.1.1.2\build\net452\DoenaSoft.EnhancedPurchaseInfo.Interface.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\DoenaSoft.EnhancedPurchaseInfo.Interface.1.1.2\build\net452\DoenaSoft.EnhancedPurchaseInfo.Interface.props'))" />
-    <Error Condition="!Exists('..\..\packages\DoenaSoft.WindowsAPICodePack.1.1.1\build\net452\DoenaSoft.WindowsAPICodePack.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\DoenaSoft.WindowsAPICodePack.1.1.1\build\net452\DoenaSoft.WindowsAPICodePack.props'))" />
-    <Error Condition="!Exists('..\..\packages\DoenaSoft.ToolBox.1.0.7\build\net452\DoenaSoft.ToolBox.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\DoenaSoft.ToolBox.1.0.7\build\net452\DoenaSoft.ToolBox.props'))" />
-  </Target>
 </Project>
