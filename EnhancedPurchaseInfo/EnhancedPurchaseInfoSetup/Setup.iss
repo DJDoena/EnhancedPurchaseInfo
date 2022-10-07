@@ -85,8 +85,8 @@ Root: HKLM; Subkey: "Software\Classes\CLSID\{{8BDEDB77-38A9-436B-83B2-8DB82E4953
 Root: HKLM; Subkey: "Software\Classes\DoenaSoft.DVDProfiler.EnhancedPurchaseInfo.Plugin"; Flags: dontcreatekey uninsdeletekey
 
 [Code]
-function IsDotNET40Detected(): boolean;
-// Function to detect dotNet framework version 4.0
+function IsDotNET4Detected(): boolean;
+// Function to detect dotNet framework version 4
 // Returns true if it is available, false it's not.
 var
 dotNetStatus: boolean;
@@ -99,9 +99,9 @@ function InitializeSetup(): Boolean;
 // Called at the beginning of the setup package.
 begin
 
-if not IsDotNET40Detected then
+if not IsDotNET4Detected then
 begin
-MsgBox( 'The Microsoft .NET Framework version 4.0 is not installed. Please install it and try again.', mbInformation, MB_OK );
+MsgBox( 'The Microsoft .NET Framework version 4 is not installed. Please install it and try again.', mbInformation, MB_OK );
 Result := false;
 end
 else
