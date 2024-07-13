@@ -1,8 +1,8 @@
 [Setup]
 AppName=Enhanced Purchase Info
 AppId=EnhancedPurchaseInfo
-AppVerName=Enhanced Purchase Info 1.1.3.8
-AppCopyright=Copyright © Doena Soft. 2015 - 2022
+AppVerName=Enhanced Purchase Info 1.1.3.9
+AppCopyright=Copyright © Doena Soft. 2015 - 2024
 AppPublisher=Doena Soft.
 AppPublisherURL=http://doena-journal.net/en/dvd-profiler-tools/
 DefaultDirName={commonpf32}\Doena Soft.\Enhanced Purchase Info
@@ -19,9 +19,9 @@ WizardStyle=modern
 DisableReadyPage=yes
 ShowLanguageDialog=no
 VersionInfoCompany=Doena Soft.
-VersionInfoCopyright=2015 - 2022
+VersionInfoCopyright=2015 - 2024
 VersionInfoDescription=Enhanced Purchase Info Setup
-VersionInfoVersion=1.1.3.8
+VersionInfoVersion=1.1.3.9
 UninstallDisplayIcon={app}\djdsoft.ico
 
 [Languages]
@@ -39,7 +39,7 @@ Source: "djdsoft.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "DoenaSoft.EnhancedPurchaseInfo.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "DoenaSoft.EnhancedPurchaseInfo.pdb"; DestDir: "{app}"; Flags: ignoreversion
 
-Source: "DoenaSoft.DVDProfilerHelper.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "DoenaSoft.DVDProfiler.Helper.dll"; DestDir: "{app}"; Flags: ignoreversion
 
 Source: "PurchasePriceSplitter.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "PurchasePriceSplitter.pdb"; DestDir: "{app}"; Flags: ignoreversion
@@ -52,7 +52,7 @@ Source: "DoenaSoft.WindowsAPICodePack.Shell.dll"; DestDir: "{app}"; Flags: ignor
 Source: "DoenaSoft.ToolBox.dll"; DestDir: "{app}"; Flags: ignoreversion
 
 Source: "de\DoenaSoft.EnhancedPurchaseInfo.resources.dll"; DestDir: "{app}\de"; Flags: ignoreversion
-Source: "de\DoenaSoft.DVDProfilerHelper.resources.dll"; DestDir: "{app}\de"; Flags: ignoreversion
+Source: "de\DoenaSoft.DVDProfiler.Helper.resources.dll"; DestDir: "{app}\de"; Flags: ignoreversion
 Source: "de\PurchasePriceSplitter.resources.dll"; DestDir: "{app}\de"; Flags: ignoreversion
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
