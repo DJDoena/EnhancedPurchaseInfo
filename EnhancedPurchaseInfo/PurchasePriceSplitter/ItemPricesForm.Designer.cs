@@ -47,14 +47,14 @@
             this.ShippinCostSplitComboBox = new System.Windows.Forms.ComboBox();
             this.NumberOfItemsUpDown = new System.Windows.Forms.NumericUpDown();
             this.ItemsTabPage = new System.Windows.Forms.TabPage();
+            this.OtherCostShareLabel = new System.Windows.Forms.Label();
+            this.CustomsFeeShareLabel = new System.Windows.Forms.Label();
             this.CreditCardFeeShareLabel = new System.Windows.Forms.Label();
             this.CreditCardChargeShareLabel = new System.Windows.Forms.Label();
             this.DomesticItemPriceLabel = new System.Windows.Forms.Label();
             this.ShippingCostShareLabel = new System.Windows.Forms.Label();
             this.ForeignItemPriceLabel = new System.Windows.Forms.Label();
             this.ItemPanel = new System.Windows.Forms.Panel();
-            this.CustomsFeeShareLabel = new System.Windows.Forms.Label();
-            this.OtherCostShareLabel = new System.Windows.Forms.Label();
             this.MainTabControl.SuspendLayout();
             this.BasicsTabPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.OtherCostsUpDown)).BeginInit();
@@ -99,7 +99,7 @@
             this.BasicsTabPage.Location = new System.Drawing.Point(4, 22);
             this.BasicsTabPage.Name = "BasicsTabPage";
             this.BasicsTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.BasicsTabPage.Size = new System.Drawing.Size(1152, 262);
+            this.BasicsTabPage.Size = new System.Drawing.Size(1532, 262);
             this.BasicsTabPage.TabIndex = 0;
             this.BasicsTabPage.Text = "Basics";
             this.BasicsTabPage.UseVisualStyleBackColor = true;
@@ -299,6 +299,24 @@
             this.ItemsTabPage.Text = "Items";
             this.ItemsTabPage.UseVisualStyleBackColor = true;
             // 
+            // OtherCostShareLabel
+            // 
+            this.OtherCostShareLabel.AutoSize = true;
+            this.OtherCostShareLabel.Location = new System.Drawing.Point(1200, 6);
+            this.OtherCostShareLabel.Name = "OtherCostShareLabel";
+            this.OtherCostShareLabel.Size = new System.Drawing.Size(163, 13);
+            this.OtherCostShareLabel.TabIndex = 10;
+            this.OtherCostShareLabel.Text = "Other Cost in Domestic Currency:";
+            // 
+            // CustomsFeeShareLabel
+            // 
+            this.CustomsFeeShareLabel.AutoSize = true;
+            this.CustomsFeeShareLabel.Location = new System.Drawing.Point(1000, 6);
+            this.CustomsFeeShareLabel.Name = "CustomsFeeShareLabel";
+            this.CustomsFeeShareLabel.Size = new System.Drawing.Size(174, 13);
+            this.CustomsFeeShareLabel.TabIndex = 9;
+            this.CustomsFeeShareLabel.Text = "Customs Fee in Domestic Currency:";
+            // 
             // CreditCardFeeShareLabel
             // 
             this.CreditCardFeeShareLabel.AutoSize = true;
@@ -354,24 +372,6 @@
             this.ItemPanel.Name = "ItemPanel";
             this.ItemPanel.Size = new System.Drawing.Size(1520, 234);
             this.ItemPanel.TabIndex = 0;
-            // 
-            // CustomsFeeShareLabel
-            // 
-            this.CustomsFeeShareLabel.AutoSize = true;
-            this.CustomsFeeShareLabel.Location = new System.Drawing.Point(1000, 6);
-            this.CustomsFeeShareLabel.Name = "CustomsFeeShareLabel";
-            this.CustomsFeeShareLabel.Size = new System.Drawing.Size(174, 13);
-            this.CustomsFeeShareLabel.TabIndex = 9;
-            this.CustomsFeeShareLabel.Text = "Customs Fee in Domestic Currency:";
-            // 
-            // OtherCostShareLabel
-            // 
-            this.OtherCostShareLabel.AutoSize = true;
-            this.OtherCostShareLabel.Location = new System.Drawing.Point(1200, 6);
-            this.OtherCostShareLabel.Name = "OtherCostShareLabel";
-            this.OtherCostShareLabel.Size = new System.Drawing.Size(163, 13);
-            this.OtherCostShareLabel.TabIndex = 10;
-            this.OtherCostShareLabel.Text = "Other Cost in Domestic Currency:";
             // 
             // ItemPricesForm
             // 

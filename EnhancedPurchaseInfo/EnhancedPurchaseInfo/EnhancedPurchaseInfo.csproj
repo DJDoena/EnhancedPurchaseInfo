@@ -136,12 +136,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DoenaSoft.DVDProfiler.Helper">
-      <Version>3.0.8</Version>
+      <Version>3.0.9</Version>
     </PackageReference>
     <PackageReference Include="DoenaSoft.EnhancedPurchaseInfo.Interface">
-      <Version>2.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="DoenaSoft.ToolBox">
       <Version>2.0.2</Version>
     </PackageReference>
     <PackageReference Include="DoenaSoft.WindowsAPICodePack">
