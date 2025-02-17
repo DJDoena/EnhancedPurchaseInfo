@@ -14,12 +14,12 @@
 		<AssemblyOriginatorKeyFile>EnhancedPurchaseInfo.snk</AssemblyOriginatorKeyFile>
 		<EnableComHosting>true</EnableComHosting>
 		<Title>Enhanced Purchase Info</Title>
+		<Description>Allows to add more detailed information about the purchase (more price fields, more dates).</Description>
 		<Company>Doena Soft.</Company>
 		<Authors>DJ Doena</Authors>
 		<Copyright>Copyright © Doena Soft. 2017 - 2025</Copyright>
 		<Version>1.1.4</Version>
 		<FileVersion>1.1.4</FileVersion>
-		<Description>Allows to add more detailed information about the purchase (more price fields, more dates).</Description>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -27,7 +27,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DoenaSoft.DVDProfiler.Helper" Version="3.0.11" />
+		<PackageReference Include="DoenaSoft.DVDProfiler.Helper" Version="3.0.12" />
 		<PackageReference Include="DoenaSoft.EnhancedPurchaseInfo.Interface" Version="2.0.2" />
 		<PackageReference Include="DoenaSoft.WindowsAPICodePack" Version="3.0.0" />
 	</ItemGroup>

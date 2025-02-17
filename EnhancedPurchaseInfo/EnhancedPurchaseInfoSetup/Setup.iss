@@ -49,6 +49,12 @@ Source: "DoenaSoft.EnhancedPurchaseInfo.Interface.dll"; DestDir: "{app}"; Flags:
 Source: "DoenaSoft.WindowsAPICodePack.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "DoenaSoft.WindowsAPICodePack.Shell.dll"; DestDir: "{app}"; Flags: ignoreversion
 
+Source: "System.Buffers.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "System.Memory.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "System.Numerics.Vectors.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "System.Resources.Extensions.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "System.Runtime.CompilerServices.Unsafe.dll"; DestDir: "{app}"; Flags: ignoreversion
+
 Source: "DoenaSoft.ToolBox.dll"; DestDir: "{app}"; Flags: ignoreversion
 
 Source: "de\DoenaSoft.EnhancedPurchaseInfo.resources.dll"; DestDir: "{app}\de"; Flags: ignoreversion
