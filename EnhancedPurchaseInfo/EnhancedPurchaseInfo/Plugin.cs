@@ -93,6 +93,11 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
 
         #endregion
 
+        static Plugin()
+        {
+            DVDProfilerHelperAssemblyLoader.Load();
+        }
+
         public Plugin()
         {
             _databaseRestoreRunning = false;
