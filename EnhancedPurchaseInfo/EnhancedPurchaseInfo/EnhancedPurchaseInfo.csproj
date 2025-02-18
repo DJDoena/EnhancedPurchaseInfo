@@ -9,21 +9,16 @@
 		<ApplicationIcon>DJDSOFT.ICO</ApplicationIcon>
 		<UseWindowsForms>true</UseWindowsForms>
 		<EmbeddedResourceUseDependentUponConvention>true</EmbeddedResourceUseDependentUponConvention>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<SignAssembly>True</SignAssembly>
 		<AssemblyOriginatorKeyFile>EnhancedPurchaseInfo.snk</AssemblyOriginatorKeyFile>
 		<EnableComHosting>true</EnableComHosting>
-		<Title>Enhanced Purchase Info</Title>
-		<Description>Allows to add more detailed information about the purchase (more price fields, more dates).</Description>
-		<Company>Doena Soft.</Company>
-		<Authors>DJ Doena</Authors>
-		<Copyright>Copyright © Doena Soft. 2017 - 2025</Copyright>
-		<Version>1.1.4</Version>
-		<FileVersion>1.1.4</FileVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<Compile Include="..\..\PluginInterface\DVDProfiler.Interface\PluginInterface.5.cs" Link="PluginInterface.5.cs" />
+		<Compile Include="..\EnhancedPurchaseInfo.AssemblyInfo.cs" Link="Properties\EnhancedPurchaseInfo.AssemblyInfo.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -50,9 +45,30 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<EmbeddedResource Update="Resources\MessageBoxTexts.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>MessageBoxTexts.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Resources\MessageBoxTexts.de.resx">
+			<DependentUpon>MessageBoxTexts.resx</DependentUpon>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Resources\Texts.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Texts.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+		<EmbeddedResource Update="Resources\Texts.de.resx">
+			<DependentUpon>Texts.resx</DependentUpon>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Update="djdsoft.ico">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Properties\" />
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">

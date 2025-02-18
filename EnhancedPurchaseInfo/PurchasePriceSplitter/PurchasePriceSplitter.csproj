@@ -8,13 +8,12 @@
 		<ApplicationIcon>DJDSOFT.ICO</ApplicationIcon>
 		<UseWindowsForms>true</UseWindowsForms>
 		<EmbeddedResourceUseDependentUponConvention>true</EmbeddedResourceUseDependentUponConvention>
-		<Title>Enhanced Purchase Info - Purchase Price Splitter</Title>
-		<Company>Doena Soft.</Company>
-		<Authors>DJ Doena</Authors>
-		<Copyright>Copyright © Doena Soft. 2017 - 2025</Copyright>
-		<Version>1.1.4</Version>
-		<FileVersion>1.1.4</FileVersion>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="..\EnhancedPurchaseInfo.AssemblyInfo.cs" Link="Properties\EnhancedPurchaseInfo.AssemblyInfo.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 	  <Compile Update="Resources\MessageBoxTexts.Designer.cs">
@@ -42,9 +41,6 @@
 			<LastGenOutput>Texts.Designer.cs</LastGenOutput>
 		</EmbeddedResource>
 		<EmbeddedResource Update="Resources\Texts.de.resx">
-			<DependentUpon>Texts.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Resources\Texts.fr.resx">
 			<DependentUpon>Texts.resx</DependentUpon>
 		</EmbeddedResource>
 	</ItemGroup>
