@@ -1,7 +1,7 @@
 [Setup]
 AppName=Enhanced Purchase Info
 AppId=EnhancedPurchaseInfo
-AppVerName=Enhanced Purchase Info 1.1.4.0
+AppVerName=Enhanced Purchase Info 1.1.4
 AppCopyright=Copyright © Doena Soft. 2015 - 2025
 AppPublisher=Doena Soft.
 AppPublisherURL=http://doena-journal.net/en/dvd-profiler-tools/
@@ -12,7 +12,7 @@ SourceDir=..\EnhancedPurchaseInfo\bin\x86\Release\net481
 Compression=zip/9
 AppMutex=InvelosDVDPro
 OutputBaseFilename=EnhancedPurchaseInfoSetup
-OutputDir=..\Setup\EnhancedPurchaseInfo
+OutputDir=..\..\..\..\..\EnhancedPurchaseInfoSetup\Setup\EnhancedPurchaseInfo
 MinVersion=0,6.1sp1
 PrivilegesRequired=admin
 WizardStyle=modern
@@ -21,7 +21,7 @@ ShowLanguageDialog=no
 VersionInfoCompany=Doena Soft.
 VersionInfoCopyright=2015 - 2025
 VersionInfoDescription=Enhanced Purchase Info Setup
-VersionInfoVersion=1.1.4.0
+VersionInfoVersion=1.1.4
 UninstallDisplayIcon={app}\djdsoft.ico
 
 [Languages]
@@ -36,30 +36,14 @@ Name: "full"; Description: "Full installation"
 [Files]
 Source: "djdsoft.ico"; DestDir: "{app}"; Flags: ignoreversion
 
-Source: "DoenaSoft.EnhancedPurchaseInfo.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "DoenaSoft.EnhancedPurchaseInfo.pdb"; DestDir: "{app}"; Flags: ignoreversion
-
-Source: "DoenaSoft.DVDProfiler.Helper.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "*.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "*.pdb"; DestDir: "{app}"; Flags: ignoreversion
 
 Source: "PurchasePriceSplitter.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "PurchasePriceSplitter.exe.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "PurchasePriceSplitter.pdb"; DestDir: "{app}"; Flags: ignoreversion
 
-Source: "DoenaSoft.EnhancedPurchaseInfo.Interface.dll"; DestDir: "{app}"; Flags: ignoreversion
-
-Source: "DoenaSoft.WindowsAPICodePack.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "DoenaSoft.WindowsAPICodePack.Shell.dll"; DestDir: "{app}"; Flags: ignoreversion
-
-Source: "System.Buffers.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "System.Memory.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "System.Numerics.Vectors.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "System.Resources.Extensions.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "System.Runtime.CompilerServices.Unsafe.dll"; DestDir: "{app}"; Flags: ignoreversion
-
-Source: "DoenaSoft.ToolBox.dll"; DestDir: "{app}"; Flags: ignoreversion
-
-Source: "de\DoenaSoft.EnhancedPurchaseInfo.resources.dll"; DestDir: "{app}\de"; Flags: ignoreversion
-Source: "de\DoenaSoft.DVDProfiler.Helper.resources.dll"; DestDir: "{app}\de"; Flags: ignoreversion
-Source: "de\PurchasePriceSplitter.resources.dll"; DestDir: "{app}\de"; Flags: ignoreversion
+Source: "de\*.dll"; DestDir: "{app}\de"; Flags: ignoreversion
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
