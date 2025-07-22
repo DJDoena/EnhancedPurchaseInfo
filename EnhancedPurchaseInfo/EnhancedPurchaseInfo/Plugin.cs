@@ -539,7 +539,7 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                     }
                 case (Constants.HtmlPrefix + "." + Constants.AdditionalDate2):
                     {
-                        text = this.GetFormattedValue(dateManager.GetAdditionalDate1);
+                        text = this.GetFormattedValue(dateManager.GetAdditionalDate2);
 
                         break;
                     }
