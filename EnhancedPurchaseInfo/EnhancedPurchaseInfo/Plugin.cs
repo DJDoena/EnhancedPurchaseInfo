@@ -674,7 +674,17 @@ namespace DoenaSoft.DVDProfiler.EnhancedPurchaseInfo
                 , Constants.HtmlPrefix + "." + Constants.CouponType + Constants.LabelSuffix
                 , Constants.HtmlPrefix + "." + Constants.CouponCode + Constants.LabelSuffix
                 , Constants.HtmlPrefix + "." + Constants.AdditionalPrice1 + Constants.LabelSuffix
-                , Constants.HtmlPrefix + "." + Constants.AdditionalPrice2 + Constants.LabelSuffix};
+                , Constants.HtmlPrefix + "." + Constants.AdditionalPrice2 + Constants.LabelSuffix
+                , Constants.HtmlPrefix + "." + Constants.OrderDate
+                , Constants.HtmlPrefix + "." + Constants.ShippingDate
+                , Constants.HtmlPrefix + "." + Constants.DeliveryDate
+                , Constants.HtmlPrefix + "." + Constants.AdditionalDate1
+                , Constants.HtmlPrefix + "." + Constants.AdditionalDate2
+                , Constants.HtmlPrefix + "." + Constants.OrderDate + Constants.LabelSuffix
+                , Constants.HtmlPrefix + "." + Constants.ShippingDate + Constants.LabelSuffix
+                , Constants.HtmlPrefix + "." + Constants.DeliveryDate + Constants.LabelSuffix
+                , Constants.HtmlPrefix + "." + Constants.AdditionalDate1 + Constants.LabelSuffix
+                , Constants.HtmlPrefix + "." + Constants.AdditionalDate2 + Constants.LabelSuffix};
 
             return tags;
         }
