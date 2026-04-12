@@ -1,0 +1,13 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Setup/">
+    <File Path="EnhancedPurchaseInfo/EnhancedPurchaseInfoSetup/Setup.iss" />
+  </Folder>
+  <Project Path="EnhancedPurchaseInfo/EnhancedPurchaseInfo/EnhancedPurchaseInfo.csproj">
+    <BuildDependency Project="EnhancedPurchaseInfo/PurchasePriceSplitter/PurchasePriceSplitter.csproj" />
+    <Platform Project="x86" />
+  </Project>
+  <Project Path="EnhancedPurchaseInfo/PurchasePriceSplitter/PurchasePriceSplitter.csproj" />
+</Solution>

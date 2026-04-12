@@ -22,9 +22,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="DoenaSoft.DVDProfiler.Helper" Version="3.0.12" />
+		<PackageReference Include="DoenaSoft.DVDProfiler.Helper" Version="4.0.1" />
 		<PackageReference Include="DoenaSoft.EnhancedPurchaseInfo.Interface" Version="2.0.2" />
-		<PackageReference Include="DoenaSoft.WindowsAPICodePack" Version="3.0.0" />
+		<PackageReference Include="DoenaSoft.WindowsAPICodePack" Version="4.7.5" />
 	</ItemGroup>
 
 	<ItemGroup>
